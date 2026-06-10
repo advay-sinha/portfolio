@@ -1,0 +1,279 @@
+/* ============================================================
+   SYSTEMS NEXUS — DESIGN TOKENS
+   Source of truth: context/design-system.md, context/strata-spec.md
+   The only file where raw color values exist.
+   Dark-mode only. No themes, no .dark variant, no light fallback.
+   ============================================================ */
+
+:root {
+  color-scheme: dark;
+
+  /* ----------------------------------------------------------
+     COLOR — CORE
+     90/8/2 rule: void/panel/text ~90%, muted structure ~8%,
+     accent ≤2% of any viewport. No pure white, no pure black.
+     ---------------------------------------------------------- */
+  --nexus-void: #060816;
+  --nexus-panel: #0d1323;
+  --nexus-glow: #4fd1ff;
+  --nexus-signal: #7c5cff;
+  --nexus-text: #f3f4f6;
+  --nexus-muted: #94a3b8;
+
+  /* ----------------------------------------------------------
+     COLOR — DERIVED (computed, never new hues)
+     Explicit rgba for full browser support; alpha channels must
+     track their core hex if a core token ever changes.
+     ---------------------------------------------------------- */
+  --nexus-panel-raised: #11182c;
+  --nexus-hairline: rgba(148, 163, 184, 0.12); /* --nexus-muted @ 12% */
+  --nexus-glow-dim: rgba(79, 209, 255, 0.15); /* --nexus-glow @ 15% */
+  --nexus-signal-dim: rgba(124, 92, 255, 0.15); /* --nexus-signal @ 15% */
+
+  /* Status indicators only — never decorative */
+  --nexus-status-ok: #34d399;
+  --nexus-status-warn: #fbbf24;
+
+  /* ----------------------------------------------------------
+     TYPOGRAPHY — FACES
+     Grotesk: the engineer speaking. Mono: the facility speaking.
+     Font variables injected by next/font in layout.tsx.
+     ---------------------------------------------------------- */
+  --font-grotesk: var(--font-space-grotesk), "Space Grotesk", system-ui,
+    sans-serif;
+  --font-machine: var(--font-jetbrains-mono), "JetBrains Mono", ui-monospace,
+    monospace;
+
+  /* ----------------------------------------------------------
+     TYPOGRAPHY — SCALE (1.250 major third)
+     ---------------------------------------------------------- */
+  --text-display: 3.815rem; /* section identifiers, one per section max */
+  --text-h1: 3.052rem;
+  --text-h2: 2.441rem;
+  --text-h3: 1.563rem; /* panel titles */
+  --text-body: 1rem;
+  --text-mono: 0.875rem; /* data, terminal, code */
+  --text-label: 0.75rem; /* uppercase mono labels only */
+
+  /* No weight above 500 — boldness comes from scale and space */
+  --weight-regular: 400;
+  --weight-medium: 500;
+
+  --tracking-display: -0.02em;
+  --tracking-label: 0.08em;
+
+  --leading-display: 1.05;
+  --leading-heading: 1.15;
+  --leading-body: 1.7;
+  --leading-mono: 1.6;
+
+  --measure-body: 65ch;
+
+  /* ----------------------------------------------------------
+     SPACING (4px base scale)
+     ---------------------------------------------------------- */
+  --space-3xs: 0.25rem; /* 4px  */
+  --space-2xs: 0.5rem; /* 8px  */
+  --space-xs: 0.75rem; /* 12px */
+  --space-sm: 1rem; /* 16px */
+  --space-md: 1.5rem; /* 24px */
+  --space-lg: 2rem; /* 32px */
+  --space-xl: 3rem; /* 48px */
+  --space-2xl: 4rem; /* 64px */
+  --space-3xl: 6rem; /* 96px */
+  --space-4xl: 8rem; /* 128px */
+  --space-5xl: 12rem; /* 192px */
+
+  /* ----------------------------------------------------------
+     LAYOUT
+     ---------------------------------------------------------- */
+  /* Stable viewport unit. Deliberately 100vh, not 100dvh — the
+     scroll map (strata-spec §9) needs corridor lengths that do
+     not reflow as mobile browser chrome collapses mid-scroll. */
+  --viewport-height: 100vh;
+  --layout-max: 80rem; /* 1280px content ceiling */
+  --layout-gutter: var(--space-md); /* 12-col grid gutter */
+  --layout-margin: var(--space-md); /* side margin, mobile */
+  --section-padding: var(--space-2xl); /* chamber vertical rhythm, mobile */
+  --grid-interval: 6rem; /* 96px structural hairlines */
+  --grid-strength: 1; /* G0 grid opacity dial, GSAP-driven per chamber */
+
+  /* ----------------------------------------------------------
+     BORDER / HAIRLINE / RADIUS
+     ---------------------------------------------------------- */
+  --hairline-width: 1px;
+  --border-hairline: var(--hairline-width) solid var(--nexus-hairline);
+  --radius-control: 0.375rem; /* 6px — buttons, inputs */
+  --radius-panel: 0.625rem; /* 10px — panels, consoles (8–12px band) */
+  --radius-full: 9999px; /* status dots */
+
+  /* ----------------------------------------------------------
+     GLOW (shadows are glows — dark UI casts light, not darkness)
+     Apply only at L4 focus states.
+     ---------------------------------------------------------- */
+  --glow-radius: 24px;
+  --glow-focus: 0 0 var(--glow-radius) var(--nexus-glow-dim);
+  --glow-signal: 0 0 var(--glow-radius) var(--nexus-signal-dim);
+  --ambient-strength: 1; /* per-chamber dial; Live Systems may reach 1.2 */
+
+  /* ----------------------------------------------------------
+     BLUR (rationed — see strata-spec §8)
+     ---------------------------------------------------------- */
+  --blur-approach: 4px; /* B1: approaching plane only, one per frame */
+  --blur-overlay: 12px; /* L4 glassmorphism budget — one per viewport */
+  --opacity-overlay-panel: 70%; /* panel opacity under backdrop blur */
+
+  /* ----------------------------------------------------------
+     DEPTH — GLOBAL STACK (strata-spec §10, back to front)
+     ---------------------------------------------------------- */
+  --z-deep-void: 0; /* G0 — fixed backdrop + structural grid */
+  --z-proxy: 10; /* G1 — silhouette of the next stratum */
+  --z-fog: 20; /* G2 — single fog veil element */
+  --z-plane: 30; /* G3 — active stratum */
+  --z-overlay: 40; /* G4 — nav rail */
+  --z-modal: 50; /* G4 — dossier overlay */
+
+  /* ----------------------------------------------------------
+     DEPTH — CHAMBER STACK (design-system §4, local to a plane)
+     ---------------------------------------------------------- */
+  --z-void: 0; /* L0 — chamber background */
+  --z-ambient: 1; /* L1 — single radial glow */
+  --z-structure: 2; /* L2 — panels, consoles */
+  --z-content: 3; /* L3 — text, diagrams, data */
+  --z-focus: 4; /* L4 — hover, active terminal, modals */
+
+  /* ----------------------------------------------------------
+     MOTION — DURATIONS
+     ---------------------------------------------------------- */
+  --motion-instant: 120ms; /* hover feedback, state ticks */
+  --motion-swift: 240ms; /* element transitions, reveals */
+  --motion-deliberate: 480ms; /* panel entrances, section shifts */
+  --motion-cinematic: 900ms; /* scene transitions, boot moments */
+  --motion-transit: 1200ms; /* anchor-jump ceiling, any distance */
+
+  /* Ambient loops (background drift, idle pulses) */
+  --motion-ambient-min: 8s;
+  --motion-ambient-max: 20s;
+  --motion-pulse: 2s; /* status dot heartbeat */
+  --ambient-play-state: running; /* frozen under reduced motion */
+
+  /* Choreography constants */
+  --motion-stagger: 70ms; /* reveal cascade step, groups cap at 6 */
+  --motion-threshold: 300ms; /* hold beat on chamber arrival */
+
+  /* ----------------------------------------------------------
+     MOTION — EASING (no bounce, no elastic, no wobble)
+     ---------------------------------------------------------- */
+  --ease-out-facility: cubic-bezier(0.16, 1, 0.3, 1); /* default */
+  --ease-inout-cinematic: cubic-bezier(0.65, 0, 0.35, 1); /* scene-level */
+  --ease-linear: linear; /* ambient loops, scanlines, data streams only */
+
+  /* ----------------------------------------------------------
+     MOTION — TRANSITIONS (composed from duration/easing tokens)
+     The only transition declarations in the system. Components
+     reference these; they never redeclare property/duration/ease
+     triplets. CSS owns feedback per the ownership law
+     (implementation-architecture §7): hover ignition, elevation,
+     and resolve are pointer-state responses, never JS-driven.
+       ignite  — light responds to presence (border, glow)
+       elevate — L2 → raised surface on hover, L4 on focus
+       resolve — presence fades in/out of the void
+     ---------------------------------------------------------- */
+  --transition-border-ignite: border-color var(--motion-instant)
+    var(--ease-out-facility);
+  --transition-glow-ignite: box-shadow var(--motion-instant)
+    var(--ease-out-facility);
+  --transition-opacity-resolve: opacity var(--motion-swift)
+    var(--ease-out-facility);
+  --transition-panel-elevate: background-color var(--motion-instant)
+      var(--ease-out-facility),
+    var(--transition-border-ignite), var(--transition-glow-ignite);
+
+  /* ----------------------------------------------------------
+     FOCUS RING (the glow accent doubles as the focus system)
+     ---------------------------------------------------------- */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  --focus-ring-color: var(--nexus-glow);
+}
+
+/* --------------------------------------------------------------
+   RESPONSIVE TOKEN SHIFTS
+   -------------------------------------------------------------- */
+@media (min-width: 768px) {
+  :root {
+    --layout-margin: var(--space-2xl); /* 64px desktop side margins */
+    --section-padding: var(--space-4xl); /* 128px desktop chamber rhythm */
+  }
+}
+
+/* --------------------------------------------------------------
+   REDUCED MOTION (designed, not disabled — design-system §8)
+   Cinematic transitions collapse to swift fades; ambient freezes.
+   -------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-deliberate: var(--motion-swift);
+    --motion-cinematic: var(--motion-swift);
+    --motion-transit: var(--motion-swift);
+    --motion-stagger: 0ms;
+    --motion-threshold: 0ms;
+    --ambient-play-state: paused;
+    --blur-approach: 0px;
+  }
+}
+
+/* ==============================================================
+   BASE DEFAULTS
+   ============================================================== */
+@layer base {
+  html {
+    background-color: var(--nexus-void);
+    /* Lenis owns all scroll smoothing (camera law, strata-spec §7).
+       Native smooth scrolling would double-ease anchor jumps. */
+    scroll-behavior: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--nexus-panel-raised) var(--nexus-void);
+  }
+
+  body {
+    background-color: var(--nexus-void);
+    color: var(--nexus-text);
+    font-family: var(--font-grotesk);
+    font-size: var(--text-body);
+    font-weight: var(--weight-regular);
+    line-height: var(--leading-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: var(--nexus-glow-dim);
+    color: var(--nexus-text);
+  }
+
+  :focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+    border-radius: var(--radius-control);
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: var(--nexus-void);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--nexus-panel-raised);
+    border: 2px solid var(--nexus-void);
+    border-radius: var(--radius-full);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--nexus-hairline);
+  }
+}

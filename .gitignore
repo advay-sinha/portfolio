@@ -1,0 +1,77 @@
+.DS_Store
+Thumbs.db
+ehthumbs.db
+*.swp
+*.swo
+*~
+CLAUDE.md
+.gitignore.bak
+context
+node_modules
+components.json
+eslint.config.mjs
+next-env.d.ts
+next.config.ts
+plan.md
+tsconfig.json
+postcss.config.mjs
+
+# Editor / IDE
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+.eslintcache
+
+# Dependencies
+node_modules/
+
+# Environment variables (ignore secrets)
+.env
+.env.local
+.env.*.local
+.env.production.local
+
+# Build outputs
+.next/
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# Testing
+coverage/
+.nyc_output/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Vercel
+.vercel/
+.vercelignore
+
+# Package manager caches
+.npm/
+.yarn/cache/
+.pnpm-store/
+
+# Local overrides
+.local/
+local.env
+
+# Copilot / workspace metadata
+.claude/
+skills-lock.json
+
+# Misc temporary files
+tmp/
+temp/
+*.tmp
+
+# Keep project docs and config tracked:
+# - CLAUDE.md, plan.md, context/, components.json, eslint.config.mjs, package.json, package-lock.json, tsconfig.json, next.config.ts, postcss.config.mjs
+
