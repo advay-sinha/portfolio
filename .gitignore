@@ -8,13 +8,7 @@ CLAUDE.md
 .gitignore.bak
 context
 node_modules
-components.json
-eslint.config.mjs
-next-env.d.ts
-next.config.ts
 plan.md
-tsconfig.json
-postcss.config.mjs
 prompt.txt
 RELEASE.md
 
@@ -35,11 +29,11 @@ node_modules/
 .env.production.local
 
 # Build outputs
-.next/
 dist/
 build/
 out/
 *.tsbuildinfo
+.next
 
 # Testing
 coverage/
