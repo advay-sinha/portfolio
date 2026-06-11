@@ -96,6 +96,7 @@
   --layout-margin: var(--space-md); /* side margin, mobile */
   --section-padding: var(--space-2xl); /* chamber vertical rhythm, mobile */
   --grid-interval: 6rem; /* 96px structural hairlines; px mirror in scroll-map.ts G0 */
+  --lattice-interval: 24rem; /* 384px structural lattice (4× grid); px mirror in scroll-map.ts G0 */
   --grid-strength: 1; /* G0 grid opacity dial, GSAP-driven per chamber */
   /* Corridor length multiplier — mirrors scroll-map.ts MOBILE_CORRIDOR_SCALE
      (strata-spec §12: corridors shorten ~40% on mobile). Mobile-first. */
@@ -191,6 +192,15 @@
   --transition-panel-elevate: background-color var(--motion-instant)
       var(--ease-out-facility),
     var(--transition-border-ignite), var(--transition-glow-ignite);
+  /* Focus transfer on the vault track — deliberate, not instant:
+     hover is a pointer answering (120ms); the traverse handing focus
+     between systems is machinery moving mass (480ms). Same properties,
+     different physical regime. */
+  --transition-focus-transfer: opacity var(--motion-deliberate)
+      var(--ease-out-facility),
+    background-color var(--motion-deliberate) var(--ease-out-facility),
+    border-color var(--motion-deliberate) var(--ease-out-facility),
+    box-shadow var(--motion-deliberate) var(--ease-out-facility);
 
   /* ----------------------------------------------------------
      FOCUS RING (the glow accent doubles as the focus system)
@@ -319,6 +329,20 @@
 @keyframes nexus-dataflow {
   to {
     stroke-dashoffset: -20;
+  }
+}
+
+/* Telemetry state tick — low-frequency liveness (Live Systems).
+   One brief blink per cycle, sub-attention; rests at the element's
+   own opacity. Frozen via --ambient-play-state. */
+@keyframes nexus-tick {
+  0%,
+  94%,
+  100% {
+    opacity: 0.25;
+  }
+  96% {
+    opacity: 0.9;
   }
 }
 

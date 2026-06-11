@@ -50,6 +50,7 @@ export async function generateMetadata({
   return {
     title: system ? `${system.designation} — ${system.title}` : "DOSSIER",
     description: system?.summary,
+    alternates: { canonical: `/systems/${slug}` },
   };
 }
 
@@ -70,7 +71,20 @@ export default async function DossierPage({
   ];
 
   return (
-    <main className="mx-auto w-full max-w-3xl flex-1 px-(--layout-margin) py-(--space-3xl)">
+    <main className="relative mx-auto w-full max-w-3xl flex-1 px-(--layout-margin) py-(--space-3xl)">
+      {/* The archive room's one light. Fixed, STATIC — no drift keyframe:
+          the homepage's beacons breathe because its systems run; the
+          archive is sealed, so its light holds still. One radial at
+          reading distance, dim enough to never compete with the record. */}
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 -z-10"
+        style={{
+          background:
+            "radial-gradient(56% 38% at 50% 0%, var(--nexus-glow-dim), transparent 70%)",
+          opacity: 0.7,
+        }}
+      />
       <RevealGroup className="flex flex-col gap-(--space-xl)">
         {/* Archive room header */}
         <Reveal kind="mono" step={0} className="flex flex-col gap-(--space-md)">
@@ -143,6 +157,43 @@ export default async function DossierPage({
             </DossierSection>
           </Reveal>
         ))}
+
+        {/* Operational evidence — renders only when real captures exist
+            (content/systems.ts ArtifactRecord: no mockups, no
+            illustrations; absence is silent, never an empty state). */}
+        {dossier.artifacts !== undefined && dossier.artifacts.length > 0 && (
+          <Reveal kind="resolve" step={7}>
+            <DossierSection label="operational evidence">
+              {dossier.artifacts.map((artifact) => (
+                <figure
+                  key={artifact.title}
+                  className="flex flex-col gap-(--space-2xs)"
+                >
+                  {artifact.src !== undefined ? (
+                    /* eslint-disable-next-line @next/next/no-img-element -- captures ship at native resolution; no remote loader */
+                    <img
+                      src={artifact.src}
+                      alt={artifact.title}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full border-(length:--hairline-width) border-(color:--nexus-hairline)"
+                    />
+                  ) : (
+                    /* Verbatim text capture — archival, not styled output. */
+                    <pre className="overflow-x-auto border-(length:--hairline-width) border-(color:--nexus-hairline) p-(--space-sm) text-(length:--text-mono) leading-(--leading-mono) text-(color:--nexus-muted) [font-family:var(--font-machine)]">
+                      {artifact.text}
+                    </pre>
+                  )}
+                  <figcaption>
+                    <MonoLabel as="span" className="normal-case">
+                      [{artifact.kind}] {artifact.caption}
+                    </MonoLabel>
+                  </figcaption>
+                </figure>
+              ))}
+            </DossierSection>
+          </Reveal>
+        )}
 
         <Reveal kind="mono" step={7}>
           <DossierSection label="infrastructure">

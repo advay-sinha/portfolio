@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 
+import { IDENTITY } from "@/content/identity";
 import { DescentProvider } from "@/descent/DescentProvider";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import { MotionBoundary } from "@/motion/MotionBoundary";
 
 import "./globals.css";
@@ -19,9 +21,26 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SYSTEMS NEXUS",
-  description:
-    "An interactive engineering facility — systems, operation logs, live telemetry.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${SITE_NAME} — ${IDENTITY.name}`,
+    // Dossier routes set their own full titles; everything else inherits.
+    template: `%s · ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: `${SITE_NAME} — ${IDENTITY.name}`,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE_NAME} — ${IDENTITY.name}`,
+    description: SITE_DESCRIPTION,
+  },
 };
 
 export default function RootLayout({

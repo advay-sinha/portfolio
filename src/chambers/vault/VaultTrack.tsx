@@ -58,7 +58,6 @@ export function VaultTrack({ children }: VaultTrackProps) {
 
   useEffect(() => {
     if (tier === "static") return;
-    if (window.innerWidth < MOBILE_BREAKPOINT_PX) return;
 
     const wrapper = wrapperRef.current;
     const viewport = viewportRef.current;
@@ -66,10 +65,11 @@ export function VaultTrack({ children }: VaultTrackProps) {
     if (!wrapper || !viewport || !track) return;
 
     let cancelled = false;
-    let releasePin: (() => void) | null = null;
     let cleanupGsap: (() => void) | null = null;
 
     void (async () => {
+      // Same module instances the DescentProvider engine loaded —
+      // resolved from cache, plugin already registered there.
       const [{ gsap }, { ScrollTrigger }] = await Promise.all([
         import("gsap"),
         import("gsap/ScrollTrigger"),
@@ -77,62 +77,95 @@ export function VaultTrack({ children }: VaultTrackProps) {
       if (cancelled) return;
 
       gsap.registerPlugin(ScrollTrigger);
-      releasePin = claimPin("vault-track");
 
-      // Switch to the lateral layout only now that the pin is real.
-      wrapper.setAttribute("data-track-active", "");
+      // matchMedia, not a one-time innerWidth check: crossing the
+      // breakpoint mid-session creates/destroys the pin cleanly in both
+      // directions — no orphaned pin on a stacked layout, no pinless
+      // desktop after rotating a tablet.
+      const mm = gsap.matchMedia();
 
-      const panels = Array.from(
-        track.querySelectorAll<HTMLElement>("[data-system-panel]")
-      );
-      let focusedIndex = -1;
-      const setFocus = (index: number) => {
-        if (index === focusedIndex) return;
-        focusedIndex = index;
-        panels.forEach((panel, i) => {
-          panel.dataset.focused = i === index ? "true" : "false";
-        });
-      };
-      setFocus(0);
+      mm.add(`(min-width: ${MOBILE_BREAKPOINT_PX}px)`, () => {
+        const releasePin = claimPin("vault-track");
 
-      const tween = gsap.to(track, {
-        x: () => -Math.max(0, track.scrollWidth - viewport.clientWidth),
-        ease: "none", // linear scroll↔position mapping — the camera law
-        scrollTrigger: {
-          id: "vault-track",
-          trigger: viewport,
-          start: "top top",
-          end: () => `+=${window.innerHeight * PIN_VIEWPORT_FRACTION}`,
-          pin: true,
-          scrub: true,
-          invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            // Discrete focus transfer — attribute flips, not per-frame work.
-            setFocus(
-              Math.min(
-                panels.length - 1,
-                Math.round(self.progress * (panels.length - 1))
-              )
-            );
+        // Switch to the lateral layout only now that the pin is real.
+        wrapper.setAttribute("data-track-active", "");
+
+        const panels = Array.from(
+          track.querySelectorAll<HTMLElement>("[data-system-panel]")
+        );
+        let focusedIndex = -1;
+        const setFocus = (index: number) => {
+          if (index === focusedIndex) return;
+          focusedIndex = index;
+          panels.forEach((panel, i) => {
+            panel.dataset.focused = i === index ? "true" : "false";
+          });
+        };
+        setFocus(0);
+
+        const tween = gsap.to(track, {
+          x: () => -Math.max(0, track.scrollWidth - viewport.clientWidth),
+          ease: "none", // linear scroll↔position mapping — the camera law
+          scrollTrigger: {
+            id: "vault-track",
+            trigger: viewport,
+            start: "top top",
+            end: () => `+=${window.innerHeight * PIN_VIEWPORT_FRACTION}`,
+            pin: true,
+            scrub: true,
+            invalidateOnRefresh: true,
+            // Apply the pin one frame early under fast scroll — the
+            // wheel can outrun the scroll listener; without this the
+            // track visibly overshoots, then snaps back.
+            anticipatePin: 1,
+            // Discrete traverse flag (twice per pass, never per frame):
+            // the nav rail reads it to recede to tick marks — wide
+            // focused panels share the rail's right edge, and two
+            // readable systems in one column is one too many.
+            onToggle: (self) => {
+              document.documentElement.toggleAttribute(
+                "data-vault-traverse",
+                self.isActive
+              );
+            },
+            onUpdate: (self) => {
+              // Discrete focus transfer — attribute flips, not per-frame work.
+              setFocus(
+                Math.min(
+                  panels.length - 1,
+                  Math.round(self.progress * (panels.length - 1))
+                )
+              );
+            },
           },
-        },
+        });
+
+        // The layout flip above changed document height; later, webfont
+        // swap changes it again. Both invalidate every measurement
+        // below the vault — refresh against the settled document.
+        ScrollTrigger.refresh();
+        const refreshAfterFonts = () => ScrollTrigger.refresh();
+        document.fonts?.ready.then(refreshAfterFonts, () => {});
+
+        return () => {
+          tween.scrollTrigger?.kill();
+          tween.kill();
+          gsap.set(track, { clearProps: "transform" });
+          panels.forEach((panel) => {
+            panel.dataset.focused = "true";
+          });
+          wrapper.removeAttribute("data-track-active");
+          document.documentElement.removeAttribute("data-vault-traverse");
+          releasePin();
+        };
       });
 
-      cleanupGsap = () => {
-        tween.scrollTrigger?.kill();
-        tween.kill();
-        gsap.set(track, { clearProps: "transform" });
-        panels.forEach((panel) => {
-          panel.dataset.focused = "true";
-        });
-      };
+      cleanupGsap = () => mm.revert();
     })();
 
     return () => {
       cancelled = true;
       cleanupGsap?.();
-      wrapper.removeAttribute("data-track-active");
-      releasePin?.();
     };
   }, [tier]);
 

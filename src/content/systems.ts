@@ -15,6 +15,34 @@ export type SystemStatus = "operational" | "experimental" | "archived";
 
 export type SchematicId = "marp" | "ats" | "floatchat" | "mockai";
 
+export type ArtifactKind =
+  | "diagram"
+  | "deployment-trace"
+  | "telemetry-snapshot"
+  | "screenshot"
+  | "log-excerpt";
+
+/**
+ * Operational evidence captured from a running system — never a
+ * mockup, never an illustration. HONESTY: `src` must point at a real
+ * file under /public, and `text` must be a verbatim excerpt (a trace,
+ * a log, a config) — an artifact entry without its real capture is a
+ * fake claim and fails review. Dossiers render artifacts only when
+ * this array exists — absence is silent, not an empty state.
+ */
+interface ArtifactBase {
+  kind: ArtifactKind;
+  title: string;
+  /** Which operation this was captured from — the provenance line. */
+  caption: string;
+}
+
+export type ArtifactRecord =
+  /** Image capture under /public, e.g. "/artifacts/marp-trace.png". */
+  | (ArtifactBase & { src: string; text?: never })
+  /** Verbatim text capture — log excerpts, traces, terminal output. */
+  | (ArtifactBase & { text: string; src?: never });
+
 export interface DossierRecord {
   /** Operational overview — what the system is, why it exists. */
   overview: string;
@@ -30,6 +58,8 @@ export interface DossierRecord {
   reasoning: string;
   /** Future work — honest, unpromised. */
   future: readonly string[];
+  /** Captured operational evidence (diagrams, traces, snapshots). Optional — real files only. */
+  artifacts?: readonly ArtifactRecord[];
 }
 
 export interface SystemRecord {
@@ -85,9 +115,9 @@ export const SYSTEMS: readonly SystemRecord[] = [
         "LLM output fragility — structured JSON from a model cannot be assumed valid",
       ],
       tradeoffs: [
-        "five single-responsibility agents over one omnibus prompt: more inference calls, but each stage is inspectable and replaceable",
-        "loop-until-confident over single-pass answers: latency spent buying reliability",
-        "pgvector inside Postgres over a managed vector service: one database, one operational surface",
+        "five single-responsibility agents over one omnibus prompt: more inference calls per question, but each stage emits typed traces and can be replaced without retraining the others",
+        "loop-until-confident over single-pass answers: response latency deliberately spent on claim-level verification, bounded by a hard iteration cap so the spend cannot run away",
+        "pgvector inside Postgres over a managed vector service: one database, one operational surface, one failure domain to observe",
       ],
       failures: [
         "the Planner's JSON parsing can fail on malformed LLM output — it degrades to treating the raw output as a single search query rather than aborting the run",
@@ -123,7 +153,7 @@ export const SYSTEMS: readonly SystemRecord[] = [
     repo: "github.com/advay-sinha/Algo-Trade-Simulator",
     dossier: {
       overview:
-        "ATS exists to research strategies without risking capital: stream the real market, trade a simulated book. The FastAPI backend owns market data, strategy training, accounts, and simulations; the React + Vite frontend surfaces live charts, portfolio stats, and trained strategies through a home analytics dashboard.",
+        "ATS exists to research strategies without risking capital: stream the real market, trade a simulated book. The FastAPI backend owns market data, strategy training, accounts, and simulations; the React + Vite frontend surfaces live charts, portfolio state, and trained strategies.",
       architecture:
         "Live quotes, charts, and intraday stats stream from Yahoo Finance for any searchable ticker. The strategy engine trains an SMA crossover on five years of historical data and serves live signals against the latest market regime. Accounts, sessions, and simulations persist in MongoDB through Motor (async), with an in-memory store available for quick local runs. A hybrid chatbot copilot — OpenAI chat completions with heuristic fallbacks — answers research questions and creates simulations from prompts like 'create a simulation for AAPL with 25k'. Sessions restore from browser storage.",
       constraints: [
@@ -132,7 +162,7 @@ export const SYSTEMS: readonly SystemRecord[] = [
         "natural-language commands — the copilot must produce valid simulations from loose prompts or decline",
       ],
       tradeoffs: [
-        "a hybrid copilot (LLM + heuristic fallbacks) over LLM-only: research assistance keeps working when the model path is unavailable or wrong",
+        "a hybrid copilot (LLM + heuristic fallbacks) over LLM-only: deterministic parsers carry simulation creation after model-only extraction produced malformed simulations from loose prompts",
         "an in-memory store option over Mongo-always: zero-setup local runs at the cost of persistence",
         "one strategy family first (SMA crossover) over a strategy zoo: a complete train→signal→simulate loop before breadth",
       ],
@@ -169,7 +199,7 @@ export const SYSTEMS: readonly SystemRecord[] = [
     repo: "github.com/advay-sinha/FloatChat-AI",
     dossier: {
       overview:
-        "FloatChat exists because oceanographic archives are rich and unreadable: NetCDF files, instrument jargon, no interface for a question like 'average salinity near Odisha in March 2023'. The application turns the ARGO float archive into an explorable dashboard with a chat layer that understands the data's own vocabulary.",
+        "FloatChat exists because oceanographic archives are rich and unreadable: NetCDF files, instrument jargon, no interface for a question like 'average salinity near Odisha in March 2023'. The application turns the ARGO float archive into an explorable interface with a chat layer that understands the data's own vocabulary.",
       architecture:
         "An offline converter prepares the archive — NetCDF into Parquet — so the live application reads a compact cached store. Streamlit drives the interface: Plotly maps, a static Leaflet view, a Cesium 3D globe, depth profiles, Hovmöller diagrams, float-to-float comparisons, raw tables, and export utilities, blended with NOAA buoy metadata and INCOIS mooring overlays. The chat layer parses places, coordinates, time windows, statistics, and nearest-float lookups against the cache, answering with inline charts and aggregated summaries.",
       constraints: [
@@ -178,7 +208,7 @@ export const SYSTEMS: readonly SystemRecord[] = [
         "offline-first — the explorer must answer from cache; external services are enrichment, never dependency",
       ],
       tradeoffs: [
-        "pre-converted Parquet cache over live archive queries: a deliberate preparation step buys interactive latency",
+        "pre-converted Parquet cache over live archive queries: NetCDF deserialization overhead exceeded conversational latency under interactive use, so that cost moved out of the request path into an offline step",
         "rule-parsed queries with LLM enrichment over LLM-first chat: deterministic answers from data, generative answers only at the edges",
         "Streamlit over a custom frontend: exploration breadth shipped ahead of interface ownership",
       ],
@@ -210,18 +240,18 @@ export const SYSTEMS: readonly SystemRecord[] = [
     ],
     status: "operational",
     summary:
-      "An end-to-end interview platform: AI-generated mock tests tuned by subject, difficulty, and time limit; a voice-enabled interview simulator; real-time performance dashboards — with JWT-secured sessions and MongoDB persistence underneath.",
+      "An end-to-end interview platform: AI-generated mock tests tuned by subject, difficulty, and time limit; a voice-enabled interview simulator; per-session performance readouts — with JWT-secured sessions and MongoDB persistence underneath.",
     schematicId: "mockai",
     repo: "github.com/advay-sinha/Mock-AI",
     dossier: {
       overview:
         "Mock AI exists because interview practice needs an examiner that scales: something that writes questions for a specific subject and difficulty, listens to answers, and returns feedback specific enough to act on. The platform pairs a FastAPI service with a React single-page app and puts Gemini behind both question generation and qualitative evaluation.",
       architecture:
-        "The React frontend drives conversational onboarding — intent capture through test execution and analysis — plus a voice-enabled interview simulator using browser speech synthesis and speech-to-text with timed prompts. The FastAPI service owns authentication (hashed passwords, JWT via python-jose), question generation, and answer evaluation against Gemini 2.0 Flash. MongoDB persists users and sessions through Motor with unique-email enforcement and pooled connections; dashboards render performance and improvement recommendations in real time.",
+        "The React frontend drives conversational onboarding — intent capture through test execution and analysis — plus a voice-enabled interview simulator using browser speech synthesis and speech-to-text with timed prompts. The FastAPI service owns authentication (hashed passwords, JWT via python-jose), question generation, and answer evaluation against Gemini 2.0 Flash. MongoDB persists users and sessions through Motor with unique-email enforcement and pooled connections; performance views render scores and improvement recommendations from stored sessions.",
       constraints: [
         "LLM accountability — generated questions and feedback flow through one backend service, never straight from the browser to the model",
         "session integrity — assessments mean nothing if identity and history are loose; JWT and unique-email enforcement are load-bearing",
-        "voice latency — the interview simulator must keep speech capture and synthesis conversational in the browser",
+        "voice latency — the capture → evaluation → synthesis round-trip must stay conversational without any server-side audio infrastructure to tune",
       ],
       tradeoffs: [
         "browser Web Speech APIs over a server-side ASR pipeline: zero audio infrastructure, at the cost of device-dependent recognition quality",

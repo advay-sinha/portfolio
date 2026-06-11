@@ -6,8 +6,12 @@
  *
  * Voice rules (identity.md §4): declarative, present tense, no
  * exclamation marks, no "passionate about", no first person (first
- * person is reserved for the Contact Node). Every line here should
+ * person is reserved for the Contact Node — CONTACT.sentence below is
+ * the page's single first-person line). Every line here should
  * survive being read aloud by the facility.
+ *
+ * The terminal is another interface into this same module — commands
+ * read these fields; nothing is duplicated into command strings.
  */
 
 export const IDENTITY = {
@@ -56,4 +60,92 @@ export const IDENTITY = {
   /** Facility local time — the engineer's zone, not the visitor's. */
   timeZone: "Asia/Kolkata",
   timeZoneLabel: "IST",
+} as const;
+
+/**
+ * Engineering philosophy — condensed from context/engineering-philosophy.md,
+ * verbatim where possible. Served by the terminal's `philosophy`
+ * command; never rendered as homepage prose (the metaphor is not
+ * explained, but the operator may be queried).
+ */
+export const PHILOSOPHY: readonly string[] = [
+  "reliable systems are quieter than impressive ones.",
+  "graceful degradation over fragile perfection; observability over blind optimism.",
+  "a system that cannot explain its state cannot be trusted.",
+  "silent failure is worse than loud failure.",
+  "complexity must justify itself — every abstraction carries maintenance cost.",
+  "the interesting problem: how intelligence behaves under constraints.",
+];
+
+/**
+ * The facility's own record — what `open nexus` returns. Every line
+ * is verifiable against this repository; no claim outlives the code.
+ */
+export const FACILITY = {
+  designation: "NEXUS",
+  title: "Systems Nexus",
+  lines: [
+    "server-rendered document first; the depth system is an enhancement layer.",
+    "one lenis camera · one gsap engine · one pin (vault-track) · one live filter.",
+    "telemetry aggregated server-side, revalidated 60s; failed sources degrade to omission, never simulation.",
+    "reduced motion is the ssr document — designed, not disabled.",
+    "content lives in typed modules; the honesty law is enforceable in one directory.",
+  ],
+} as const;
+
+/**
+ * Contact Node content (homepage-experience §4.6).
+ * CONTACT.sentence is the only first-person copy on the page.
+ *
+ * HONESTY: channels must resolve. The resume is offered on request
+ * through the channel until a real PDF ships under /public — a
+ * pointing link to a missing file would be a fake artifact.
+ */
+export interface ContactChannel {
+  id: "email" | "github" | "linkedin" | "resume";
+  label: string;
+  value: string;
+  href: string;
+}
+
+export const CONTACT = {
+  sentence:
+    "If something here is worth building on, I read every transmission.",
+  channels: [
+    {
+      id: "email",
+      label: "email",
+      value: "arnavmeghlan203@gmail.com",
+      href: "mailto:arnavmeghlan203@gmail.com",
+    },
+    {
+      id: "github",
+      label: "github",
+      value: "github.com/advay-sinha",
+      href: "https://github.com/advay-sinha",
+    },
+    {
+      id: "linkedin",
+      label: "linkedin",
+      value: "linkedin.com/in/advay-sinha",
+      href: "https://linkedin.com/in/advay-sinha",
+    },
+    {
+      id: "resume",
+      label: "resume",
+      value: "on request via channel",
+      href: "mailto:arnavmeghlan203@gmail.com?subject=resume%20request",
+    },
+  ] satisfies readonly ContactChannel[],
+
+  /** Channel state — mono readouts for the availability panel and `status`. */
+  state: [
+    { term: "channel", value: "communication channel available" },
+    { term: "mode", value: "async-first preferred" },
+    { term: "response latency", value: "variable" },
+    {
+      term: "domains",
+      value: "orchestration systems · retrieval infrastructure · backend clarity",
+    },
+  ],
 } as const;

@@ -61,7 +61,7 @@ export interface NavRailProps {
 const markerTransition =
   "[transition:transform_var(--motion-instant)_var(--ease-out-facility),background-color_var(--motion-instant)_var(--ease-out-facility)]";
 const labelTransition =
-  "[transition:color_var(--motion-instant)_var(--ease-out-facility)]";
+  "[transition:color_var(--motion-instant)_var(--ease-out-facility),opacity_var(--motion-deliberate)_var(--ease-out-facility)]";
 
 export function NavRail({ items }: NavRailProps) {
   const [activeId, setActiveId] = useState<string>(items[0]?.id ?? "");
@@ -117,6 +117,13 @@ export function NavRail({ items }: NavRailProps) {
                     "[font-family:var(--font-machine)] [font-weight:var(--weight-medium)]",
                     "text-(length:--text-label) tracking-(--tracking-label) uppercase tabular-nums",
                     labelTransition,
+                    // During the vault traverse the rail recedes to tick
+                    // marks: VaultTrack raises [data-vault-traverse] on
+                    // <html> while the pin is active — wide focused
+                    // panels reach the rail's column, and wayfinding
+                    // must lose that contest. Ticks and aria-labels
+                    // remain; the words return on release.
+                    "[[data-vault-traverse]_&]:opacity-0",
                     active
                       ? "text-(color:--nexus-text)"
                       : "text-(color:--nexus-muted) group-hover:text-(color:--nexus-text)"

@@ -89,6 +89,62 @@ export function resolveScrollMap(segments: readonly Segment[]): ResolvedMap {
   return { segments: resolved, totalVh: cursor, byStratum };
 }
 
+/** Measured document position of one stratum plane, in vh. */
+export interface StratumBounds {
+  start: number;
+  end: number;
+}
+
+/**
+ * Resolve the map against the REAL document instead of the declared
+ * lengths. The declared map is the design intent; the rendered document
+ * can drift from it (pin spacing inserted by ScrollTrigger, stacked
+ * mobile content exceeding a min-height, font metrics). Phase math that
+ * trusts declared lengths while the camera reads real scroll desyncs
+ * every stratum below the first divergence — so the runtime measures
+ * plane offsets and corridors stretch to fill the true gaps.
+ *
+ * Pure over its inputs: segments + measured bounds in vh. Focus
+ * segments take their measured bounds when available (declared length
+ * as fallback); each corridor runs from the previous segment's end to
+ * the next focus segment's measured start.
+ */
+export function resolveMeasuredMap(
+  segments: readonly Segment[],
+  bounds: ReadonlyMap<StratumId, StratumBounds>
+): ResolvedMap {
+  const resolved: ResolvedSegment[] = [];
+  const byStratum = new Map<StratumId, number>();
+  let cursor = 0;
+
+  for (let i = 0; i < segments.length; i++) {
+    const segment = segments[i];
+    if (segment.kind === "focus") {
+      const measured = bounds.get(segment.id);
+      const start = measured !== undefined ? Math.max(measured.start, cursor) : cursor;
+      const end =
+        measured !== undefined
+          ? Math.max(measured.end, start)
+          : start + segment.length;
+      byStratum.set(segment.id, resolved.length);
+      resolved.push({ segment, start, end });
+      cursor = end;
+    } else {
+      const next = segments[i + 1];
+      const nextStart =
+        next?.kind === "focus" ? bounds.get(next.id)?.start : undefined;
+      const end =
+        nextStart !== undefined
+          ? Math.max(nextStart, cursor)
+          : cursor + segment.length;
+      resolved.push({ segment, start: cursor, end });
+      cursor = end;
+    }
+  }
+
+  return { segments: resolved, totalVh: cursor, byStratum };
+}
+
 /* ----------------------------------------------------------------
    HELPERS — small, named, no magic
    ---------------------------------------------------------------- */
@@ -250,6 +306,44 @@ export function fogAt(map: ResolvedMap, s: number): number {
   if (rs.segment.kind !== "corridor" || rs.segment.fogPeak === 0) return 0;
   const p = progress(clamp(s, 0, map.totalVh), rs.start, rs.end);
   return rs.segment.fogPeak * Math.sin(Math.PI * p);
+}
+
+/* ----------------------------------------------------------------
+   SCROLL → SIGNAL BLEED (G1 — machine memory between chambers)
+   ---------------------------------------------------------------- */
+
+/**
+ * Signal-bleed intensity 0–1: zero inside every focus band (content
+ * never shares the viewport with it at strength), half-sine through
+ * corridors that declare a bleed coefficient — same zero-slope curve
+ * as fog and grid, so all three environmental channels condense and
+ * thin together. The engine multiplies by SIGNAL_BLEED.maxOpacity.
+ */
+export function bleedAt(map: ResolvedMap, s: number): number {
+  const rs = segmentAt(map, s);
+  if (rs.segment.kind !== "corridor") return 0;
+  const coefficient = rs.segment.bleed ?? 0;
+  if (coefficient === 0) return 0;
+  const p = progress(clamp(s, 0, map.totalVh), rs.start, rs.end);
+  return coefficient * Math.sin(Math.PI * p);
+}
+
+/* ----------------------------------------------------------------
+   SCROLL → GRID DENSITY (strata-spec §10: C1 densification, C4 strip-down)
+   ---------------------------------------------------------------- */
+
+/**
+ * G0 grid strength: 1 inside focus bands, half-sine toward each
+ * corridor's `grid` value at mid-transit — the same curve as fog, so
+ * structure and atmosphere condense together and nothing ever steps.
+ * Corridors with grid 1 are flat; the vacuum transit (grid < 1)
+ * empties the void instead of filling it.
+ */
+export function gridAt(map: ResolvedMap, s: number): number {
+  const rs = segmentAt(map, s);
+  if (rs.segment.kind !== "corridor" || rs.segment.grid === 1) return 1;
+  const p = progress(clamp(s, 0, map.totalVh), rs.start, rs.end);
+  return 1 + (rs.segment.grid - 1) * Math.sin(Math.PI * p);
 }
 
 /* ----------------------------------------------------------------

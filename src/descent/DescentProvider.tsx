@@ -13,11 +13,15 @@ import {
 
 import { detectTier, onReducedMotionChange, type MotionTier } from "@/descent/capability";
 import {
+  bleedAt,
   fogAt,
+  gridAt,
   phaseAt,
+  resolveMeasuredMap,
   resolveScrollMap,
   type PhaseState,
   type ResolvedMap,
+  type StratumBounds,
   type StratumPhase,
 } from "@/descent/depth-math";
 import {
@@ -25,6 +29,7 @@ import {
   forViewport,
   G0,
   SCROLL_MAP,
+  SIGNAL_BLEED,
   type StratumId,
 } from "@/descent/scroll-map";
 
@@ -69,13 +74,14 @@ import {
  * settled document. Destruction must return the page to exactly the
  * SSR state: the static tier is the cleanup target, not an afterthought.
  *
- * Future ScrollTrigger integration points:
- * - When VaultTrack lands its pin, register ScrollTrigger here:
- *   `gsap.registerPlugin(ScrollTrigger)`, `lenis.on("scroll",
- *   ScrollTrigger.update)`, ScrollTrigger.scrollerProxy if needed, and
- *   a dev-mode pin-budget assertion (second `pin: true` registration
- *   throws). Chamber islands will request triggers through a context
- *   method so the budget stays enforceable in one place.
+ * ScrollTrigger integration (landed with the Vault pin):
+ * - Registered here at the engine root; `lenis.on("scroll",
+ *   ScrollTrigger.update)` keeps pin transforms frame-locked to the
+ *   camera. No scrollerProxy — Lenis drives native window scroll.
+ * - refreshInit releases every plane transform so ScrollTrigger
+ *   measures the settled document; refresh re-measures the map
+ *   (resolveMeasuredMap — real offsets, not declared lengths) and
+ *   reapplies. The pin budget stays enforced via descent/pin-budget.
  * - The jank tripwire (capability.ts notes) will sample rAF deltas
  *   inside `tick` — the loop already exists; demotion extends the tier
  *   store (a session-demotion flag ANDed into the snapshot) and fires
@@ -91,6 +97,8 @@ interface DescentContextValue {
   registerPlane: (id: StratumId, el: HTMLElement) => () => void;
   /** Register the single fog veil element. Returns an unregister cleanup. */
   registerVeil: (el: HTMLElement) => () => void;
+  /** Register the single signal-bleed element (G1). Returns an unregister cleanup. */
+  registerBleed: (el: HTMLElement) => () => void;
 }
 
 /**
@@ -102,6 +110,7 @@ const STATIC_CONTEXT: DescentContextValue = {
   tier: "static",
   registerPlane: () => () => {},
   registerVeil: () => () => {},
+  registerBleed: () => () => {},
 };
 
 const DescentContext = createContext<DescentContextValue>(STATIC_CONTEXT);
@@ -116,6 +125,7 @@ export function useDescent(): DescentContextValue {
 
 type GsapCore = (typeof import("gsap"))["gsap"];
 type LenisCtor = (typeof import("@studio-freight/lenis"))["default"];
+type ScrollTriggerStatic = (typeof import("gsap/ScrollTrigger"))["ScrollTrigger"];
 type Setter = (value: number) => void;
 
 const RESIZE_DEBOUNCE_MS = 150;
@@ -124,6 +134,7 @@ interface DescentEngine {
   addPlane(id: StratumId, el: HTMLElement): void;
   removePlane(id: StratumId): void;
   setVeil(el: HTMLElement | null): void;
+  setBleed(el: HTMLElement | null): void;
   start(): void;
   destroy(): void;
 }
@@ -232,16 +243,23 @@ function createPlaneHandle(
 function createEngine(
   gsap: GsapCore,
   Lenis: LenisCtor,
+  ScrollTrigger: ScrollTriggerStatic,
   tier: Exclude<MotionTier, "static">
 ): DescentEngine {
   let resolved: ResolvedMap = resolveScrollMap(
     forViewport(window.innerWidth).segments
   );
   const handles = new Map<StratumId, PlaneHandle>();
+  const elements = new Map<StratumId, HTMLElement>();
   let veilEl: HTMLElement | null = null;
   let setVeilOpacity: Setter | null = null;
+  let bleedEl: HTMLElement | null = null;
+  let setBleedOpacity: Setter | null = null;
   let gridEl: HTMLElement | null = null;
   let setGridY: Setter | null = null;
+  let latticeEl: HTMLElement | null = null;
+  let setLatticeY: Setter | null = null;
+  let lastGridStrength = -1;
   let scrollPx = 0;
   let started = false;
   let resizeTimer: ReturnType<typeof setTimeout> | undefined;
@@ -251,16 +269,68 @@ function createEngine(
   const lenis = new Lenis({ lerp: CAMERA_LERP });
   const tick = (time: number) => lenis.raf(time * 1000);
 
+  // The map, measured against the real document. Declared lengths are
+  // design intent; the rendered page diverges (pin spacing, stacked
+  // mobile content, font metrics). offsetTop accumulation is immune to
+  // the engine's own transforms, so measurement never reads its own
+  // writes (a getBoundingClientRect here would).
+  const measureBounds = (): Map<StratumId, StratumBounds> => {
+    const vhUnit = window.innerHeight / 100;
+    const out = new Map<StratumId, StratumBounds>();
+    for (const [id, el] of elements) {
+      let top = 0;
+      let node: Element | null = el;
+      while (node instanceof HTMLElement) {
+        top += node.offsetTop;
+        node = node.offsetParent;
+      }
+      out.set(id, {
+        start: top / vhUnit,
+        end: (top + el.offsetHeight) / vhUnit,
+      });
+    }
+    return out;
+  };
+
+  const remeasure = () => {
+    resolved = resolveMeasuredMap(
+      forViewport(window.innerWidth).segments,
+      measureBounds()
+    );
+  };
+
   const update = () => {
     const vhUnit = window.innerHeight / 100;
     const viewportWidthPx = window.innerWidth;
     const s = scrollPx / vhUnit; // scroll position in vh — the map's unit
 
     setVeilOpacity?.(fogAt(resolved, s));
+    // G1 signal bleed — same pure-function discipline as fog. The
+    // layer's own render loop gates on this value (gateOpacity), so
+    // writing ~0 here also stops its GPU work.
+    setBleedOpacity?.(bleedAt(resolved, s) * SIGNAL_BLEED.maxOpacity);
 
     // G0 moves at 0.97× scroll. The 3% differential wraps modulo the
     // grid interval, so a bounded translate reads as endless depth.
     setGridY?.(-((scrollPx * (1 - G0.scrollFactor)) % G0.gridIntervalPx));
+    // The lattice runs a 6% differential — twice the grid's parallax.
+    // Two structures separating at different rates is what turns a
+    // backdrop into a volume.
+    setLatticeY?.(
+      -((scrollPx * (1 - G0.latticeScrollFactor)) % G0.latticeIntervalPx)
+    );
+
+    // Corridor density modulation — one custom property, written only
+    // at perceptible deltas (the grid answers via calc(), no repaint
+    // storm: opacity on a composited pre-painted layer).
+    const strength = gridAt(resolved, s);
+    if (Math.abs(strength - lastGridStrength) > 0.005) {
+      lastGridStrength = strength;
+      document.documentElement.style.setProperty(
+        "--grid-strength",
+        strength.toFixed(3)
+      );
+    }
 
     for (const handle of handles.values()) {
       handle.apply(phaseAt(resolved, s, handle.id, tier), viewportWidthPx);
@@ -272,28 +342,52 @@ function createEngine(
     update();
   };
 
-  // Breakpoint or orientation change: re-derive the map (pure, cheap)
-  // and reapply once. Phase math is stateless, so this is safe mid-page.
+  // Breakpoint or orientation change: re-measure the document (cheap —
+  // seven offset chains) and reapply once. Phase math is stateless, so
+  // this is safe mid-page.
   const onResize = () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
-      resolved = resolveScrollMap(forViewport(window.innerWidth).segments);
+      remeasure();
       update();
     }, RESIZE_DEBOUNCE_MS);
+  };
+
+  // ScrollTrigger refresh discipline: measurements must read the
+  // settled document, never the engine's transforms. refreshInit
+  // releases every plane to its SSR state before ScrollTrigger
+  // measures; refresh re-measures our own map (pin spacing may have
+  // just appeared) and reapplies the current scroll state.
+  const onRefreshInit = () => {
+    for (const handle of handles.values()) handle.release();
+  };
+  const onRefresh = () => {
+    remeasure();
+    update();
   };
 
   return {
     addPlane(id, el) {
       handles.set(id, createPlaneHandle(gsap, id, el));
-      if (started) update();
+      elements.set(id, el);
+      if (started) {
+        remeasure();
+        update();
+      }
     },
     removePlane(id) {
       handles.get(id)?.release();
       handles.delete(id);
+      elements.delete(id);
     },
     setVeil(el) {
       veilEl = el;
       setVeilOpacity = el ? (gsap.quickSetter(el, "opacity") as Setter) : null;
+    },
+    setBleed(el) {
+      bleedEl = el;
+      setBleedOpacity = el ? (gsap.quickSetter(el, "opacity") as Setter) : null;
+      if (started) update();
     },
     start() {
       // Lenis rides GSAP's ticker — one rAF loop on the page, total.
@@ -302,25 +396,43 @@ function createEngine(
       gsap.ticker.add(tick);
       gsap.ticker.lagSmoothing(0);
       lenis.on("scroll", onScroll);
+      // The Lenis ↔ ScrollTrigger contract: ScrollTrigger re-reads
+      // scroll position on every Lenis frame, so pinned transforms
+      // never lag the camera by a frame (the lag IS the jitter).
+      lenis.on("scroll", ScrollTrigger.update);
+      ScrollTrigger.addEventListener("refreshInit", onRefreshInit);
+      ScrollTrigger.addEventListener("refresh", onRefresh);
       window.addEventListener("resize", onResize);
 
       gridEl = document.querySelector<HTMLElement>('[data-descent="grid"]');
       setGridY = gridEl ? (gsap.quickSetter(gridEl, "y", "px") as Setter) : null;
+      latticeEl = document.querySelector<HTMLElement>(
+        '[data-descent="lattice"]'
+      );
+      setLatticeY = latticeEl
+        ? (gsap.quickSetter(latticeEl, "y", "px") as Setter)
+        : null;
 
       started = true;
       scrollPx = window.scrollY;
+      remeasure();
       update();
     },
     destroy() {
       clearTimeout(resizeTimer);
       window.removeEventListener("resize", onResize);
+      ScrollTrigger.removeEventListener("refreshInit", onRefreshInit);
+      ScrollTrigger.removeEventListener("refresh", onRefresh);
       gsap.ticker.remove(tick);
       gsap.ticker.lagSmoothing(500, 33); // GSAP default, restored
       lenis.destroy();
       for (const handle of handles.values()) handle.release();
       handles.clear();
       if (gridEl) gsap.set(gridEl, { clearProps: "transform" });
+      if (latticeEl) gsap.set(latticeEl, { clearProps: "transform" });
+      document.documentElement.style.removeProperty("--grid-strength");
       if (veilEl) gsap.set(veilEl, { clearProps: "opacity" });
+      if (bleedEl) gsap.set(bleedEl, { clearProps: "opacity" });
     },
   };
 }
@@ -340,6 +452,7 @@ export function DescentProvider({ children }: { children: ReactNode }) {
   const tier = useSyncExternalStore(subscribeTier, detectTier, getServerTier);
   const planesRef = useRef(new Map<StratumId, HTMLElement>());
   const veilRef = useRef<HTMLElement | null>(null);
+  const bleedRef = useRef<HTMLElement | null>(null);
   const engineRef = useRef<DescentEngine | null>(null);
 
   const registerPlane = useCallback((id: StratumId, el: HTMLElement) => {
@@ -360,6 +473,15 @@ export function DescentProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  const registerBleed = useCallback((el: HTMLElement) => {
+    bleedRef.current = el;
+    engineRef.current?.setBleed(el);
+    return () => {
+      bleedRef.current = null;
+      engineRef.current?.setBleed(null);
+    };
+  }, []);
+
   // Engine lifecycle, keyed by tier. Static = no engine, no bundles.
   useEffect(() => {
     if (tier === "static") return;
@@ -368,16 +490,27 @@ export function DescentProvider({ children }: { children: ReactNode }) {
     let engine: DescentEngine | null = null;
 
     void (async () => {
-      const [gsapModule, lenisModule] = await Promise.all([
+      const [gsapModule, lenisModule, stModule] = await Promise.all([
         import("gsap"),
         import("@studio-freight/lenis"),
+        import("gsap/ScrollTrigger"),
       ]);
       if (cancelled) return;
 
-      engine = createEngine(gsapModule.gsap, lenisModule.default, tier);
+      // Registered here, once, at the engine root — chamber islands
+      // (VaultTrack) import the same module instance and find it ready.
+      gsapModule.gsap.registerPlugin(stModule.ScrollTrigger);
+
+      engine = createEngine(
+        gsapModule.gsap,
+        lenisModule.default,
+        stModule.ScrollTrigger,
+        tier
+      );
       engineRef.current = engine;
       for (const [id, el] of planesRef.current) engine.addPlane(id, el);
       if (veilRef.current) engine.setVeil(veilRef.current);
+      if (bleedRef.current) engine.setBleed(bleedRef.current);
       engine.start();
     })();
 
@@ -389,8 +522,8 @@ export function DescentProvider({ children }: { children: ReactNode }) {
   }, [tier]);
 
   const value = useMemo<DescentContextValue>(
-    () => ({ tier, registerPlane, registerVeil }),
-    [tier, registerPlane, registerVeil]
+    () => ({ tier, registerPlane, registerVeil, registerBleed }),
+    [tier, registerPlane, registerVeil, registerBleed]
   );
 
   return (

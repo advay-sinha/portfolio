@@ -63,7 +63,10 @@ export function SystemPanel({ system, className }: SystemPanelProps) {
       data-focused="true"
       className={cn(
         // Discrete focus-transfer response — only meaningful on the track.
+        // Stacked: pointer-state speed. On the track: deliberate mass —
+        // the traverse hands focus like machinery, not like hover.
         "[transition:var(--transition-panel-elevate),var(--transition-opacity-resolve)]",
+        "group-data-[track-active]/track:[transition:var(--transition-focus-transfer)]",
         "group-data-[track-active]/track:data-[focused=false]:opacity-60",
         "group-data-[track-active]/track:data-[focused=true]:z-(--z-focus)",
         "group-data-[track-active]/track:data-[focused=true]:bg-(--nexus-panel-raised)",

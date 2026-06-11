@@ -1,6 +1,10 @@
 import { BOOT_LINES } from "@/chambers/boot/boot-lines";
 import { BootSequence } from "@/chambers/boot/BootSequence";
+import { ContactNode } from "@/chambers/contact/ContactNode";
 import { NeuralCore } from "@/chambers/core/NeuralCore";
+import { LiveSystems } from "@/chambers/live/LiveSystems";
+import { MissionLogs } from "@/chambers/logs/MissionLogs";
+import { TerminalInterface } from "@/chambers/terminal/TerminalInterface";
 import { SystemVault } from "@/chambers/vault/SystemVault";
 import { IDENTITY } from "@/content/identity";
 import { DeepVoid } from "@/descent/DeepVoid";
@@ -8,9 +12,7 @@ import { FogVeil } from "@/descent/FogVeil";
 import { NavRail, type NavRailItem } from "@/descent/NavRail";
 import { SCROLL_MAP, type StratumId } from "@/descent/scroll-map";
 import { StrataPlane } from "@/descent/StrataPlane";
-import { cn } from "@/lib/utils";
 import { MonoLabel } from "@/primitives/MonoLabel";
-import { Panel } from "@/primitives/Panel";
 
 /**
  * Homepage — the descent, laid out as a real document.
@@ -19,11 +21,11 @@ import { Panel } from "@/primitives/Panel";
  * StrataPlanes at their §9 lengths, corridor segments become spacers.
  * Document height therefore equals the scroll map by construction.
  *
- * Built chambers: Boot Sequence (DEPTH.00) and Neural Core (DEPTH.01).
- * The boot→core passage is environmental, not choreographed: the boot
- * departs through C0's thin fog (engine phases), and the Core arrives
- * led by its violet ambient — light emergence, no scene cut. Remaining
- * strata hold structural shells until their chambers land.
+ * All seven chambers are installed: Boot (DEPTH.00) through Contact
+ * (DEPTH.06). Passages are environmental, not choreographed: each
+ * stratum departs through its corridor's fog and the next arrives led
+ * by its own ambient — no wipes, no scene cuts (the dossier route is
+ * the page's single Cut).
  */
 
 const NAV_LABELS: Record<StratumId, string> = {
@@ -48,49 +50,6 @@ const NAV_ITEMS: NavRailItem[] = SCROLL_MAP.flatMap((segment) =>
     : []
 );
 
-type ShellId = Exclude<StratumId, "boot" | "core" | "vault">;
-
-interface ShellSpec {
-  /** Full corridor-marker designation shown in the chamber. */
-  marker: string;
-  /** Chamber name — Grotesk, never uppercase. */
-  title: string;
-  /** Composition note from strata-spec §3.1; doubles as shell metadata. */
-  note: string;
-  /** Focal-mass placement on the 12-col grid (desktop). */
-  placement: string;
-  /** Centered composition — Terminal only (allowed centered composition #2). */
-  centered?: boolean;
-}
-
-const SHELLS: Record<ShellId, ShellSpec> = {
-  logs: {
-    marker: "DEPTH.03 · SYS.LOGS / 03",
-    title: "Mission Logs",
-    note: "center-left spine col 6 · entries alternate cols 2–5 / 7–11",
-    placement: "md:col-span-7 md:col-start-3",
-  },
-  live: {
-    marker: "DEPTH.04 · SYS.LIVE / 04",
-    title: "Live Systems",
-    note: "focal mass right · telemetry cols 5–12 · source notes cols 2–4",
-    placement: "md:col-span-8 md:col-start-5",
-  },
-  terminal: {
-    marker: "DEPTH.05 · TERMINAL",
-    title: "Terminal Interface",
-    note: "centered console · single panel ≈60% width",
-    placement: "md:col-span-6 md:col-start-4",
-    centered: true,
-  },
-  contact: {
-    marker: "DEPTH.06 · NODE: CONTACT",
-    title: "Contact Node",
-    note: "focal mass left · copy + form cols 3–8 · the quiet room",
-    placement: "md:col-span-6 md:col-start-3",
-  },
-};
-
 function chamberFor(id: StratumId) {
   switch (id) {
     case "boot":
@@ -105,8 +64,17 @@ function chamberFor(id: StratumId) {
       return <NeuralCore />;
     case "vault":
       return <SystemVault />;
-    default:
-      return <ChamberShell id={id} />;
+    case "logs":
+      return <MissionLogs />;
+    case "live":
+      // Async server component — telemetry fetched at render, ISR 60s.
+      // Returns null when every source degrades: the stratum band stays
+      // as honest dark void (height comes from the map, never content).
+      return <LiveSystems />;
+    case "terminal":
+      return <TerminalInterface />;
+    case "contact":
+      return <ContactNode />;
   }
 }
 
@@ -117,83 +85,90 @@ export default function Home() {
       <FogVeil />
       <NavRail items={NAV_ITEMS} />
       <main className="relative flex-1">
-        {SCROLL_MAP.map((segment) =>
-          segment.kind === "focus" ? (
-            <StrataPlane
-              key={segment.id}
-              id={segment.id}
-              depth={segment.depth}
-              className="flex items-center py-(--section-padding)"
-              style={{ minHeight: `${segment.length}vh` }}
-            >
-              {chamberFor(segment.id)}
-            </StrataPlane>
-          ) : (
+        {SCROLL_MAP.map((segment, i) => {
+          if (segment.kind === "focus") {
+            return (
+              <StrataPlane
+                key={segment.id}
+                id={segment.id}
+                depth={segment.depth}
+                // Pin measurement law: the pinned stratum is top-flowed,
+                // never centered. Vertical centering distributes the
+                // min-height slack around the content, so the pin
+                // trigger's position would change by half the pin
+                // spacing every time ScrollTrigger reverts the spacer
+                // to measure — start and reality could never agree.
+                // Top flow puts all slack below the pin, where it
+                // cannot move the trigger.
+                className={
+                  segment.pin !== undefined
+                    ? "py-(--section-padding)"
+                    : "flex items-center py-(--section-padding)"
+                }
+                style={{ minHeight: `${segment.length}vh` }}
+              >
+                {chamberFor(segment.id)}
+              </StrataPlane>
+            );
+          }
+          const next = SCROLL_MAP[i + 1];
+          return (
             <CorridorSpacer
               key={segment.id}
               id={segment.id}
               lengthVh={segment.length}
+              ahead={
+                next?.kind === "focus"
+                  ? { depth: next.depth, label: NAV_LABELS[next.id] }
+                  : undefined
+              }
             />
-          )
-        )}
+          );
+        })}
       </main>
     </>
   );
 }
 
 /**
- * Corridor — empty depth between strata (strata-spec §11: a corridor
- * with nothing but fog and the G0 grid is correct). Height scales via
+ * Corridor — depth between strata (strata-spec §11: a corridor with
+ * nothing but fog and the G0 grid is correct). Height scales via
  * --corridor-scale, mirroring the scroll map's viewport derivation.
+ *
+ * Passage marker: one mono readout of what lies ahead — real
+ * wayfinding derived from the map, not decoration. It renders without
+ * a z-index, so the fixed fog veil (z-fog) paints OVER it: the marker
+ * is dimmest exactly at mid-corridor where fog peaks and resolves as
+ * the next chamber approaches — depth signage behaving like it's
+ * actually in the corridor, with zero JS. aria-hidden: the nav rail
+ * already owns this information semantically.
  */
-function CorridorSpacer({ id, lengthVh }: { id: string; lengthVh: number }) {
+function CorridorSpacer({
+  id,
+  lengthVh,
+  ahead,
+}: {
+  id: string;
+  lengthVh: number;
+  ahead?: { depth: number; label: string };
+}) {
   return (
     <div
       aria-hidden
       data-corridor={id}
+      className="flex items-center justify-center"
       style={{ height: `calc(${lengthVh}vh * var(--corridor-scale))` }}
-    />
-  );
-}
-
-/**
- * Structural placeholder for one unbuilt chamber. Owns the semantic
- * landmark; replaced wholesale when its chamber lands.
- */
-function ChamberShell({ id }: { id: ShellId }) {
-  const { marker, title, note, placement, centered } = SHELLS[id];
-  const headingId = `${id}-title`;
-
-  return (
-    <section aria-labelledby={headingId} className="w-full">
-      <div className="mx-auto grid w-full max-w-(--layout-max) grid-cols-12 gap-x-(--layout-gutter) px-(--layout-margin)">
-        <div
-          className={cn(
-            "col-span-12 flex flex-col gap-(--space-md)",
-            centered && "items-center text-center",
-            placement
-          )}
+    >
+      {ahead !== undefined && (
+        <MonoLabel
+          as="p"
+          className="flex items-center gap-(--space-sm) opacity-35"
         >
-          <MonoLabel as="p">{marker}</MonoLabel>
-          <h2
-            id={headingId}
-            className="text-(length:--text-h2) leading-(--leading-heading) [font-weight:var(--weight-medium)]"
-          >
-            {title}
-          </h2>
-          <Panel
-            as="div"
-            label={`SHELL.${id.toUpperCase()}`}
-            meta={note}
-            inset="compact"
-            className="w-full"
-          >
-            <p className="text-(length:--text-mono) leading-(--leading-mono) text-(color:--nexus-muted) [font-family:var(--font-machine)]">
-              &gt; chamber framed — installation pending
-            </p>
-          </Panel>
-        </div>
-      </div>
-    </section>
+          <span className="inline-block h-px w-(--space-xl) bg-(--nexus-hairline)" />
+          {id} · transit → depth.0{ahead.depth} · {ahead.label}
+          <span className="inline-block h-px w-(--space-xl) bg-(--nexus-hairline)" />
+        </MonoLabel>
+      )}
+    </div>
   );
 }

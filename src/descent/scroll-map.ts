@@ -73,6 +73,24 @@ export interface CorridorSegment {
   length: number;
   /** Peak fog-veil opacity at mid-corridor, 0–1 (strata-spec §5). */
   fogPeak: number;
+  /**
+   * G0 grid density at mid-corridor (strata-spec §10: C1 densification,
+   * C4 strip-down). 1 = focus-band baseline; the engine drives
+   * --grid-strength toward this value with the same half-sine the fog
+   * uses, so structure condenses between chambers and the vacuum
+   * transit (C4) actually empties. Mid-corridor value, never a step.
+   */
+  grid: number;
+  /**
+   * Signal-bleed coefficient at mid-corridor, 0–1 (G1 layer). Machine
+   * memory leaking through strata: dormant terminal chatter that peaks
+   * only between chambers and only where the facility plausibly leaks —
+   * approaching the archive, and through the vacuum transit where
+   * nothing else lives. 0 (or absent) = the corridor is silent.
+   * Multiplied by SIGNAL_BLEED.maxOpacity; content never competes with
+   * it because focus bands are always 0 by construction.
+   */
+  bleed?: number;
 }
 
 export type Segment = FocusSegment | CorridorSegment;
@@ -80,9 +98,9 @@ export type Segment = FocusSegment | CorridorSegment;
 /** Strata-spec §9 desktop table, verbatim. Total ≈ 1230vh. */
 export const SCROLL_MAP: readonly Segment[] = [
   { kind: "focus", id: "boot", depth: 0, length: 100, drift: 0 },
-  { kind: "corridor", id: "c0", length: 40, fogPeak: 0.15 },
+  { kind: "corridor", id: "c0", length: 40, fogPeak: 0.15, grid: 1.25 },
   { kind: "focus", id: "core", depth: 1, length: 120, drift: -0.02 },
-  { kind: "corridor", id: "c1", length: 50, fogPeak: 0.2 },
+  { kind: "corridor", id: "c1", length: 50, fogPeak: 0.2, grid: 1.5, bleed: 0.45 },
   {
     kind: "focus",
     id: "vault",
@@ -96,11 +114,13 @@ export const SCROLL_MAP: readonly Segment[] = [
     drift: 0.015,
     pin: { maxLengthVh: 150 },
   },
-  { kind: "corridor", id: "c2", length: 55, fogPeak: 0.35 },
+  { kind: "corridor", id: "c2", length: 55, fogPeak: 0.35, grid: 1.3, bleed: 0.3 },
   { kind: "focus", id: "logs", depth: 3, length: 180, drift: 0 },
-  { kind: "corridor", id: "c3", length: 35, fogPeak: 0.25 },
+  { kind: "corridor", id: "c3", length: 35, fogPeak: 0.25, grid: 1.2 },
   { kind: "focus", id: "live", depth: 4, length: 120, drift: 0.02 },
-  { kind: "corridor", id: "c4", length: 40, fogPeak: 0 }, // vacuum transit
+  // vacuum transit — no fog, structure strips down toward nothing;
+  // the only thing alive here is dormant terminal bleed (full coefficient)
+  { kind: "corridor", id: "c4", length: 40, fogPeak: 0, grid: 0.35, bleed: 1 },
   {
     kind: "focus",
     id: "terminal",
@@ -109,7 +129,8 @@ export const SCROLL_MAP: readonly Segment[] = [
     drift: 0,
     departureScaleTo: 1.03,
   },
-  { kind: "corridor", id: "c5", length: 30, fogPeak: 0.1 },
+  // departing the terminal — its chatter follows you out, fading
+  { kind: "corridor", id: "c5", length: 30, fogPeak: 0.1, grid: 1.1, bleed: 0.55 },
   { kind: "focus", id: "contact", depth: 6, length: 110, drift: -0.015 },
 ];
 
@@ -148,6 +169,32 @@ export const G0 = {
   scrollFactor: 0.97,
   /** Grid hairline interval in px. Mirrors --grid-interval (6rem) in tokens.css. */
   gridIntervalPx: 96,
+  /**
+   * The structural lattice — a second, coarser hairline layer one
+   * order behind the grid. Its 6% differential vs. the grid's 3% is
+   * what makes the void read as VOLUME: two structures at different
+   * depths, separating as the camera descends. Interval = 4× the grid
+   * (mirrored by --lattice-interval in tokens.css).
+   */
+  latticeScrollFactor: 0.94,
+  latticeIntervalPx: 384,
+} as const;
+
+/* ----------------------------------------------------------------
+   G1 SIGNAL BLEED — dormant terminal chatter between chambers
+   ---------------------------------------------------------------- */
+export const SIGNAL_BLEED = {
+  /**
+   * Opacity ceiling for the bleed layer at coefficient 1 (C4 vacuum).
+   * Deliberately under the faintest fog peak: bleed is something you
+   * FEEL in the void, never something you read. If it becomes
+   * consciously noticeable, lower THIS, not the corridor coefficients.
+   */
+  maxOpacity: 0.07,
+  /** Shader updates per second — dormant systems don't run at 60fps. */
+  fps: 20,
+  /** Render resolution factor — degraded signal should be cheap AND soft. */
+  dpr: 0.6,
 } as const;
 
 /** Camera smoothing — Lenis lerp, the law (implementation-architecture §1). */
