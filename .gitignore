@@ -15,7 +15,7 @@ next.config.ts
 plan.md
 tsconfig.json
 postcss.config.mjs
-
+prompt.txt
 # Editor / IDE
 .vscode/
 .idea/
