@@ -89,6 +89,15 @@ export default async function DossierPage({
               {system.status}
             </span>
           </MonoLabel>
+          {/* Evidence over claims (storytelling §4.1): the source is the record. */}
+          <a
+            href={`https://${system.repo}`}
+            rel="noreferrer"
+            target="_blank"
+            className="self-start text-(length:--text-mono) text-(color:--nexus-muted) [font-family:var(--font-machine)] [transition:color_var(--motion-instant)_var(--ease-out-facility)] hover:text-(color:--nexus-glow) focus-visible:text-(color:--nexus-glow)"
+          >
+            &gt; source: {system.repo}
+          </a>
         </Reveal>
 
         <Reveal kind="panel" step={1}>

@@ -22,34 +22,35 @@ export const IDENTITY = {
    */
   summary:
     "Designs backend systems where behavior under pressure matters " +
-    "more than the demo: multi-agent orchestration, real-time speech " +
-    "pipelines, probabilistic market simulation. The recurring " +
+    "more than the demo: multi-agent research pipelines, market " +
+    "simulation, conversational data systems. The recurring " +
     "problem: how intelligence behaves under constraints.",
 
   /** Mono readouts, never skill bars. Max 6 — the stagger cap is also the content cap. */
   capabilities: [
     "multi-agent orchestration",
-    "speech & realtime inference",
+    "retrieval & evidence grounding",
     "backend architecture",
-    "distributed coordination",
-    "observability & reliability",
-    "probabilistic reasoning",
+    "llm integration & fallback design",
+    "data pipelines & visualization",
+    "auth, sessions & persistence",
   ],
 
   /**
-   * The flagship systems (identity.md §2). Count feeds the boot line
-   * `> N systems operational` — derived, never hardcoded, so the boot
-   * can't drift from the vault. Full records move to content/systems.ts
-   * when the Vault chamber lands.
+   * The flagship systems — mirrors content/systems.ts (the vault's
+   * records, each mapped to a real repository). Count feeds the boot
+   * line `> N systems operational` — derived, never hardcoded, so the
+   * boot can't drift from the vault.
    */
   systems: [
-    "Multi-Agent Research Platform",
-    "Algorithmic Trading Simulator",
-    "Speech Recognition Backend",
+    "Multi-Agentic Research Platform",
+    "Algo Trade Simulator",
+    "FloatChat",
+    "Mock AI",
   ],
 
   /** Current operational direction — real, singular, updated by hand when it changes. */
-  focus: "agent coordination · inference pipelines",
+  focus: "agent pipelines · evidence-grounded retrieval",
   availability: "channel open",
 
   /** Facility local time — the engineer's zone, not the visitor's. */

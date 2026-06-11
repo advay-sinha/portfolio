@@ -37,7 +37,14 @@ import { MonoLabel } from "@/primitives/MonoLabel";
  * later group — it settles before the visitor reaches it.
  */
 export function SystemVault() {
-  const subReadout = `${ACTIVE_SYSTEMS.length} systems · ${ARCHIVED_SYSTEMS.length} archived · ${EXPERIMENTAL_COUNT} experimental`;
+  // Real counts only — zero-count categories simply don't speak.
+  const subReadout = [
+    `${ACTIVE_SYSTEMS.length} systems`,
+    ARCHIVED_SYSTEMS.length > 0 ? `${ARCHIVED_SYSTEMS.length} archived` : null,
+    EXPERIMENTAL_COUNT > 0 ? `${EXPERIMENTAL_COUNT} experimental` : null,
+  ]
+    .filter((part) => part !== null)
+    .join(" · ");
 
   return (
     <section aria-labelledby="vault-title" className="relative w-full">
@@ -87,14 +94,17 @@ export function SystemVault() {
         </VaultTrack>
       </RevealGroup>
 
-      {/* The quieter sub-band after the traverse releases. */}
-      <div className="relative mx-auto w-full max-w-(--layout-max) px-(--layout-margin) pt-(--space-3xl)">
-        <RevealGroup>
-          <Reveal kind="mono" step={0}>
-            <ArchiveShelf />
-          </Reveal>
-        </RevealGroup>
-      </div>
+      {/* The quieter sub-band after the traverse releases. Renders only
+          when retired systems actually exist — no empty shelf theater. */}
+      {ARCHIVED_SYSTEMS.length > 0 && (
+        <div className="relative mx-auto w-full max-w-(--layout-max) px-(--layout-margin) pt-(--space-3xl)">
+          <RevealGroup>
+            <Reveal kind="mono" step={0}>
+              <ArchiveShelf />
+            </Reveal>
+          </RevealGroup>
+        </div>
+      )}
     </section>
   );
 }
