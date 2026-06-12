@@ -159,12 +159,25 @@ function CorridorSpacer({
     <div
       aria-hidden
       data-corridor={id}
-      className="flex items-start justify-center"
+      className="relative flex items-start justify-center"
       style={{
         height: `calc(${lengthVh}vh * var(--corridor-scale))`,
         paddingTop: `calc(${lengthVh * 0.38}vh * var(--corridor-scale))`,
       }}
     >
+      {/* Structural rails — two static vertical hairlines fading at
+          both ends (Phase 14.2). The scroll itself animates them:
+          passing a corridor means passing structure, so transit reads
+          as movement through infrastructure, not through nothing.
+          Static by construction — reduced motion is identical. */}
+      <span
+        aria-hidden
+        className="absolute inset-y-0 left-[16%] w-px bg-linear-to-b from-transparent via-(--nexus-glow-dim) to-transparent"
+      />
+      <span
+        aria-hidden
+        className="absolute inset-y-0 right-[16%] w-px bg-linear-to-b from-transparent via-(--nexus-muted) to-transparent opacity-25"
+      />
       {ahead !== undefined && (
         <MonoLabel
           as="p"

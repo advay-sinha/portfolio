@@ -72,6 +72,11 @@ export function SystemPanel({ system, className }: SystemPanelProps) {
         "group-data-[track-active]/track:data-[focused=true]:bg-(--nexus-panel-raised)",
         "group-data-[track-active]/track:data-[focused=true]:border-(color:--nexus-glow-dim)",
         "group-data-[track-active]/track:data-[focused=true]:[box-shadow:var(--glow-focus)]",
+        // Edge illumination (Phase 14.2): a top hairline ignites on the
+        // focused panel only — energy visibly transfers as the traverse
+        // hands focus along the track. Same attribute flip, CSS answers.
+        "before:absolute before:inset-x-(--space-md) before:top-0 before:h-px before:bg-(--nexus-glow-dim) before:opacity-0 before:content-[''] before:[transition:var(--transition-opacity-resolve)]",
+        "group-data-[track-active]/track:data-[focused=true]:before:opacity-100",
         className
       )}
     >

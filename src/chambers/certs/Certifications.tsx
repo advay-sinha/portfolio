@@ -20,8 +20,11 @@ import { MonoLabel } from "@/primitives/MonoLabel";
  * Layout — a ledger, not a trophy wall: compact two-column record rows
  * separated by hairlines; mono carries every piece of metadata
  * (issue stamp, provider, domain, credential id); Grotesk speaks only
- * the credential titles. Composition keeps the engine room's focal
- * law: records right (cols 5–12), the archive note left (cols 2–4).
+ * the credential titles. Composition (Phase 14.2): the ledger holds
+ * the middle third of the viewport (cols 3–10) — presented, not
+ * dumped against an edge. Asymmetry survives in the one-column-left
+ * offset and the heading sitting flush with the ledger, never
+ * centered as text.
  *
  * Emphasis discipline: no provider logos, no color coding, no
  * gamification. Hierarchy is brightness and order only — newest first,
@@ -49,7 +52,7 @@ export function Certifications() {
       />
 
       <RevealGroup className="relative mx-auto grid w-full max-w-(--layout-max) grid-cols-12 gap-x-(--layout-gutter) gap-y-(--space-xl) px-(--layout-margin)">
-        <div className="col-span-12 flex flex-col gap-(--space-2xs) md:col-span-8 md:col-start-5">
+        <div className="col-span-12 flex flex-col gap-(--space-2xs) md:col-span-8 md:col-start-3">
           <Reveal kind="mono" step={0}>
             <MonoLabel as="p">DEPTH.04 · CERTIFICATIONS / 04</MonoLabel>
           </Reveal>
@@ -62,33 +65,24 @@ export function Certifications() {
             </h2>
           </Reveal>
           <Reveal kind="mono" step={2}>
-            <MonoLabel as="p">{subReadout}</MonoLabel>
+            <MonoLabel
+              as="p"
+              className="flex flex-wrap items-baseline gap-x-(--space-sm)"
+            >
+              <span>{subReadout}</span>
+              <span aria-hidden>·</span>
+              <span className="normal-case opacity-60">
+                each record links to its issued pdf
+              </span>
+            </MonoLabel>
           </Reveal>
         </div>
 
-        {/* Archive note — cols 2–4. What this ledger is and is not. */}
-        <Reveal
-          kind="mono"
-          step={2}
-          className="col-span-12 md:col-span-3 md:col-start-2"
-        >
-          <MonoLabel
-            as="p"
-            className="flex flex-col gap-(--space-3xs) border-t-(length:--hairline-width) border-(color:--nexus-hairline) pt-(--space-sm)"
-          >
-            <span className="opacity-60">credential ledger</span>
-            <span>each record links to its issued artifact</span>
-            <span className="normal-case opacity-60">
-              &gt; pdf · served from this facility
-            </span>
-          </MonoLabel>
-        </Reveal>
-
-        {/* The ledger — cols 5–12, resolving as one unit. */}
+        {/* The ledger — the middle third (cols 3–10), resolving as one unit. */}
         <Reveal
           kind="resolve"
           step={3}
-          className="col-span-12 md:col-span-8 md:col-start-5"
+          className="col-span-12 md:col-span-8 md:col-start-3"
         >
           <ul className="grid list-none grid-cols-1 gap-x-(--layout-gutter) lg:grid-cols-2">
             {CERTIFICATIONS.map((record) => (

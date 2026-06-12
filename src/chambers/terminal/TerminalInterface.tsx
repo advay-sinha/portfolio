@@ -158,6 +158,20 @@ export function TerminalInterface() {
         </h2>
 
         <Reveal kind="panel" step={1}>
+          {/* Focus atmosphere (Phase 14.2): the room's only light rises
+              while the operator is engaged — a glow-dim pool behind the
+              panel on :focus-within, CSS transition only. The terminal
+              is found dark and warms to use; nothing animates on its
+              own, so reduced motion differs only in transition length. */}
+          <div className="group/term relative">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -inset-(--space-xl) opacity-0 transition-opacity duration-(--motion-cinematic) ease-(--ease-out-facility) group-focus-within/term:opacity-100"
+              style={{
+                background:
+                  "radial-gradient(58% 66% at 50% 45%, var(--nexus-glow-dim), transparent 72%)",
+              }}
+            />
           <Panel
             as="div"
             label="TERMINAL"
@@ -207,6 +221,7 @@ export function TerminalInterface() {
               />
             </div>
           </Panel>
+          </div>
         </Reveal>
 
         <Reveal kind="mono" step={2}>

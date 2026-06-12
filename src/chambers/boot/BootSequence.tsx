@@ -273,6 +273,22 @@ export function BootSequence({ name, role, lines }: BootSequenceProps) {
         <MonoLabel as="p" className="mt-(--space-sm)">
           {role}
         </MonoLabel>
+        {/* Ignition line — one hairline draws beneath the identity at
+            settle (Phase 14.2): the workspace comes online under the
+            name. CSS transition only; instant-skip zeroes it like
+            everything else; reduced motion gets the settled (full)
+            line from the server. */}
+        <span
+          aria-hidden
+          className={cn(
+            "mx-auto mt-(--space-md) block h-px w-40 bg-(--nexus-glow-dim)",
+            "scale-x-100 opacity-100 transition-[transform,opacity] duration-(--motion-cinematic) ease-(--ease-out-facility)",
+            "group-data-[boot-state=void]:scale-x-0 group-data-[boot-state=void]:opacity-0",
+            "group-data-[boot-state=lines]:scale-x-0 group-data-[boot-state=lines]:opacity-0",
+            "group-data-[boot-state=identity]:scale-x-50 group-data-[boot-state=identity]:opacity-60",
+            "group-data-[instant]:duration-0"
+          )}
+        />
       </div>
 
       {/* Scroll cue: one muted line after 2s idle. No chevron, no bounce. */}

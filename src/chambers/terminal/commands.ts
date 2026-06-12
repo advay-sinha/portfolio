@@ -187,7 +187,6 @@ const REGISTRY: Record<string, CommandSpec> = {
     run: () => ({
       lines: [
         ...CONTACT.channels.map((c) => link(`${c.label}: ${c.value}`, c.href)),
-        ...CONTACT.state.map((row) => muted(`${row.term}: ${row.value}`)),
         link("> jump: contact node", "#contact"),
       ],
     }),

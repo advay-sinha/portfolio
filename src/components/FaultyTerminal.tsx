@@ -272,7 +272,9 @@ export default function FaultyTerminal({
   const frozenTimeRef = useRef(0);
   const rafRef = useRef<number>(0);
   const loadAnimationStartRef = useRef<number>(0);
-  const timeOffsetRef = useRef<number>(Math.random() * 100);
+  // Seeded in the setup effect — render must stay pure (no Math.random
+  // during render; the offset only matters once the loop starts).
+  const timeOffsetRef = useRef<number>(0);
 
   const tintVec = useMemo(() => hexToRgb(tint), [tint]);
 
@@ -290,6 +292,10 @@ export default function FaultyTerminal({
   useEffect(() => {
     const ctn = containerRef.current;
     if (!ctn) return;
+
+    if (timeOffsetRef.current === 0) {
+      timeOffsetRef.current = Math.random() * 100;
+    }
 
     const renderer = new Renderer({ dpr });
     rendererRef.current = renderer;

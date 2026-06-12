@@ -166,15 +166,4 @@ export const CONTACT = {
       href: "/AdvayResume.pdf",
     },
   ] satisfies readonly ContactChannel[],
-
-  /** Channel state — mono readouts for the availability panel and `status`. */
-  state: [
-    { term: "channel", value: "communication channel available" },
-    { term: "mode", value: "async-first preferred" },
-    { term: "response latency", value: "variable" },
-    {
-      term: "domains",
-      value: "orchestration systems · retrieval infrastructure · backend clarity",
-    },
-  ],
 } as const;

@@ -1,5 +1,4 @@
-import { AvailabilityPanel } from "@/chambers/contact/AvailabilityPanel";
-import { ContactLinks } from "@/chambers/contact/ContactLinks";
+import { ChannelRegistry } from "@/chambers/contact/ChannelRegistry";
 import { CONTACT } from "@/content/identity";
 import { Reveal, RevealGroup } from "@/motion/RevealGroup";
 import { MonoLabel } from "@/primitives/MonoLabel";
@@ -19,9 +18,10 @@ import { StatusDot } from "@/primitives/StatusDot";
  * ambient does NOT drift (stillness law). No animation class at all;
  * reduced motion and full motion are identical here by construction.
  *
- * Composition (strata-spec §3.1): copy + channel cols 3–8, mono link
- * row beneath. CONTACT.sentence is the page's single first-person
- * line.
+ * Composition (strata-spec §3.1; Phase 14.2 — slightly more intimate):
+ * sentence + channel registry, cols 3–7. The registry IS the chamber:
+ * four direct channels in a vertical mono ledger, nothing else.
+ * CONTACT.sentence is the page's single first-person line.
  *
  * Page end: ~30vh of near-empty void, then the footer-small mono line
  * with one pulsing dot — the facility keeps running after the visitor
@@ -34,17 +34,19 @@ export function ContactNode() {
   return (
     <section aria-labelledby="contact-title" className="relative w-full">
       {/* L1 ambient — faint static pool. Deliberately no drift keyframe. */}
+      {/* Tighter, dimmer pool than any chamber above — the deepest,
+          quietest room. Still no drift: stillness law. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 z-(--z-ambient) opacity-40"
+        className="pointer-events-none absolute inset-0 z-(--z-ambient) opacity-30"
         style={{
           background:
-            "radial-gradient(38% 32% at 42% 64%, var(--nexus-glow-dim), transparent 72%)",
+            "radial-gradient(30% 26% at 40% 60%, var(--nexus-glow-dim), transparent 70%)",
         }}
       />
 
       <div className="relative mx-auto grid w-full max-w-(--layout-max) grid-cols-12 gap-x-(--layout-gutter) px-(--layout-margin)">
-        <RevealGroup className="col-span-12 flex flex-col gap-(--space-lg) md:col-span-6 md:col-start-3">
+        <RevealGroup className="col-span-12 flex flex-col gap-(--space-lg) md:col-span-5 md:col-start-3">
           <div className="flex flex-col gap-(--space-2xs)">
             <Reveal kind="mono" step={0}>
               <MonoLabel as="p">DEPTH.06 · NODE: CONTACT</MonoLabel>
@@ -61,11 +63,7 @@ export function ContactNode() {
           </div>
 
           <Reveal kind="panel" step={2}>
-            <AvailabilityPanel />
-          </Reveal>
-
-          <Reveal kind="mono" step={3}>
-            <ContactLinks />
+            <ChannelRegistry />
           </Reveal>
         </RevealGroup>
       </div>
