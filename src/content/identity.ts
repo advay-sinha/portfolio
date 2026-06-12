@@ -112,11 +112,16 @@ export const CONTACT = {
   sentence:
     "If something here is worth building on, I read every transmission.",
   channels: [
+    { id: "phone",
+      label: "phone",
+      value: "+919835428707",
+      href: "tel:+919835428707",
+    },
     {
       id: "email",
       label: "email",
-      value: "arnavmeghlan203@gmail.com",
-      href: "mailto:arnavmeghlan203@gmail.com",
+      value: "advaysinhaa@gmail.com",
+      href: "mailto:advaysinhaa@gmail.com",
     },
     {
       id: "github",
@@ -134,7 +139,7 @@ export const CONTACT = {
       id: "resume",
       label: "resume",
       value: "on request via channel",
-      href: "mailto:arnavmeghlan203@gmail.com?subject=resume%20request",
+      href: "mailto:advaysinhaa@gmail.com?subject=resume%20request",
     },
   ] satisfies readonly ContactChannel[],
 
