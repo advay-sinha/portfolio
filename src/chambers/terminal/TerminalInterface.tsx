@@ -8,7 +8,12 @@ import {
   type MouseEvent,
 } from "react";
 
-import { execute, type TerminalLineSpec } from "@/chambers/terminal/commands";
+import {
+  execute,
+  SESSION_HOST,
+  SESSION_USER,
+  type TerminalLineSpec,
+} from "@/chambers/terminal/commands";
 import { TerminalOutput } from "@/chambers/terminal/TerminalOutput";
 import { TerminalPrompt } from "@/chambers/terminal/TerminalPrompt";
 import { Reveal, RevealGroup } from "@/motion/RevealGroup";
@@ -48,8 +53,15 @@ import { StatusDot } from "@/primitives/StatusDot";
  * 'help'") — the information elsewhere never depended on it.
  */
 
+// Session context, not a MOTD: host and operator are derived from
+// content/ (the same truth the commands read); "deterministic" is the
+// shell's actual contract (commands.ts) — chrome only where it's true.
 const GREETING: readonly TerminalLineSpec[] = [
   { kind: "output", text: "maintenance access layer · direct interface" },
+  {
+    kind: "muted",
+    text: `host: ${SESSION_HOST} · operator: ${SESSION_USER} · shell: deterministic`,
+  },
   { kind: "muted", text: "> type 'help' for the command index" },
 ];
 
@@ -86,7 +98,8 @@ export function TerminalInterface() {
     const result = execute(input);
     setLines((prev) => {
       if (result.clear === true) return [];
-      const echo: TerminalLineSpec = { kind: "echo", text: `> ${input}` };
+      // Raw input only — TerminalLine renders the session prompt prefix.
+      const echo: TerminalLineSpec = { kind: "echo", text: input };
       return [...prev, echo, ...result.lines].slice(-MAX_LINES);
     });
   };
@@ -148,7 +161,7 @@ export function TerminalInterface() {
           <Panel
             as="div"
             label="TERMINAL"
-            meta="maintenance access"
+            meta={`${SESSION_USER}@${SESSION_HOST} · maintenance access`}
             status={
               <>
                 <StatusDot tone="ok" />
@@ -198,7 +211,7 @@ export function TerminalInterface() {
 
         <Reveal kind="mono" step={2}>
           <MonoLabel as="p" className="normal-case opacity-60">
-            &gt; enter executes · arrow-up recalls · esc releases
+            &gt; enter executes · arrow-up recalls · ctrl+l clears · esc releases
           </MonoLabel>
         </Reveal>
       </RevealGroup>

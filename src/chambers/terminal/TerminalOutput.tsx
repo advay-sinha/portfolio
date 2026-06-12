@@ -29,7 +29,7 @@ export function TerminalOutput({ lines, scrollRef }: TerminalOutputProps) {
       aria-live="polite"
       aria-label="terminal session log"
       data-lenis-prevent
-      className="flex max-h-[40vh] min-h-32 flex-col gap-(--space-3xs) overflow-y-auto"
+      className="flex max-h-[40vh] min-h-32 flex-col gap-(--space-3xs) overflow-y-auto pr-(--space-2xs) [scrollbar-color:var(--nexus-hairline)_transparent] [scrollbar-width:thin]"
     >
       {lines.map((line, i) => (
         <TerminalLine key={i} line={line} />

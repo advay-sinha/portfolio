@@ -14,7 +14,7 @@ const fromEnv =
 
 export const SITE_URL = fromEnv ?? "http://localhost:3000";
 
-export const SITE_NAME = "SYSTEMS NEXUS";
+export const SITE_NAME = "PORTFOLIO";
 
 export const SITE_DESCRIPTION =
   "An engineering facility documenting real systems work — " +

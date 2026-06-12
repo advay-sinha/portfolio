@@ -95,12 +95,22 @@ export interface CorridorSegment {
 
 export type Segment = FocusSegment | CorridorSegment;
 
-/** Strata-spec §9 desktop table, verbatim. Total ≈ 1230vh. */
+/**
+ * Strata-spec §9 desktop table. Total ≈ 1170vh.
+ *
+ * Corridor lengths retuned in Phase 13.8 (spatial compression): the
+ * §9 values held more empty transit than their visual density earned —
+ * "deliberate spatial transition" had drifted into dead air. Spans are
+ * compressed SELECTIVELY, never uniformly, preserving the rhythm
+ * hierarchy: C2 (vault departure) stays the longest traversal, C4
+ * (vacuum transit) second — the terminal stays remote — and C0 keeps
+ * enough span that core arrival still lands with weight.
+ */
 export const SCROLL_MAP: readonly Segment[] = [
   { kind: "focus", id: "boot", depth: 0, length: 100, drift: 0 },
-  { kind: "corridor", id: "c0", length: 40, fogPeak: 0.15, grid: 1.25 },
+  { kind: "corridor", id: "c0", length: 26, fogPeak: 0.15, grid: 1.25 },
   { kind: "focus", id: "core", depth: 1, length: 120, drift: -0.02 },
-  { kind: "corridor", id: "c1", length: 50, fogPeak: 0.2, grid: 1.5, bleed: 0.45 },
+  { kind: "corridor", id: "c1", length: 34, fogPeak: 0.2, grid: 1.5, bleed: 0.45 },
   {
     kind: "focus",
     id: "vault",
@@ -114,13 +124,13 @@ export const SCROLL_MAP: readonly Segment[] = [
     drift: 0.015,
     pin: { maxLengthVh: 150 },
   },
-  { kind: "corridor", id: "c2", length: 55, fogPeak: 0.35, grid: 1.3, bleed: 0.3 },
+  { kind: "corridor", id: "c2", length: 44, fogPeak: 0.35, grid: 1.3, bleed: 0.3 },
   { kind: "focus", id: "logs", depth: 3, length: 180, drift: 0 },
-  { kind: "corridor", id: "c3", length: 35, fogPeak: 0.25, grid: 1.2 },
+  { kind: "corridor", id: "c3", length: 26, fogPeak: 0.25, grid: 1.2 },
   { kind: "focus", id: "live", depth: 4, length: 120, drift: 0.02 },
   // vacuum transit — no fog, structure strips down toward nothing;
   // the only thing alive here is dormant terminal bleed (full coefficient)
-  { kind: "corridor", id: "c4", length: 40, fogPeak: 0, grid: 0.35, bleed: 1 },
+  { kind: "corridor", id: "c4", length: 36, fogPeak: 0, grid: 0.35, bleed: 1 },
   {
     kind: "focus",
     id: "terminal",
@@ -130,7 +140,7 @@ export const SCROLL_MAP: readonly Segment[] = [
     departureScaleTo: 1.03,
   },
   // departing the terminal — its chatter follows you out, fading
-  { kind: "corridor", id: "c5", length: 30, fogPeak: 0.1, grid: 1.1, bleed: 0.55 },
+  { kind: "corridor", id: "c5", length: 24, fogPeak: 0.1, grid: 1.1, bleed: 0.55 },
   { kind: "focus", id: "contact", depth: 6, length: 110, drift: -0.015 },
 ];
 

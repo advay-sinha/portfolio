@@ -1,11 +1,16 @@
 import type { KeyboardEvent, Ref } from "react";
 
+import { SESSION_PROMPT } from "@/chambers/terminal/commands";
+
 /**
  * TerminalPrompt — the input row.
  *
  * A real form with a real text input: Enter submits natively,
  * software keyboards get a return key, and the browser owns the caret
- * (its blink is the chamber's caret law, no CSS imitation needed).
+ * (its blink is the chamber's caret law, no CSS imitation needed —
+ * caret-color borrows the glow token, the one earned accent here).
+ * The prompt label is the derived session string (operator@host),
+ * matching the echo lines so the scrollback reads as one session.
  * History recall, Ctrl+L and Escape are handled one level up — this
  * component only reports keys.
  *
@@ -39,9 +44,9 @@ export function TerminalPrompt({
     >
       <span
         aria-hidden
-        className="text-(length:--text-mono) leading-(--leading-mono) text-(color:--nexus-muted) [font-family:var(--font-machine)]"
+        className="whitespace-nowrap text-(length:--text-mono) leading-(--leading-mono) text-(color:--nexus-muted) opacity-50 [font-family:var(--font-machine)]"
       >
-        &gt;
+        {SESSION_PROMPT}
       </span>
       <input
         ref={inputRef}
@@ -55,7 +60,7 @@ export function TerminalPrompt({
         autoCorrect="off"
         spellCheck={false}
         enterKeyHint="send"
-        className="min-w-0 flex-1 bg-transparent text-(length:--text-mono) leading-(--leading-mono) text-(color:--nexus-text) [font-family:var(--font-machine)] outline-none placeholder:text-(color:--nexus-muted) placeholder:opacity-40"
+        className="min-w-0 flex-1 bg-transparent text-(length:--text-mono) leading-(--leading-mono) text-(color:--nexus-text) caret-(color:--nexus-glow) [font-family:var(--font-machine)] outline-none placeholder:text-(color:--nexus-muted) placeholder:opacity-40"
         placeholder="help"
       />
     </form>

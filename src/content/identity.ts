@@ -97,9 +97,9 @@ export const FACILITY = {
  * Contact Node content (homepage-experience §4.6).
  * CONTACT.sentence is the only first-person copy on the page.
  *
- * HONESTY: channels must resolve. The resume is offered on request
- * through the channel until a real PDF ships under /public — a
- * pointing link to a missing file would be a fake artifact.
+ * HONESTY: channels must resolve. The resume channel points at the
+ * real PDF under /public — the "updated" stamp tracks the file's
+ * actual revision month and is bumped by hand when the PDF is.
  */
 export interface ContactChannel {
   id: "email" | "github" | "linkedin" | "resume";
@@ -110,7 +110,7 @@ export interface ContactChannel {
 
 export const CONTACT = {
   sentence:
-    "If something here is worth building on, I read every transmission.",
+    "Signal Received — Let’s Connect",
   channels: [
     {
       id: "email",
@@ -133,8 +133,8 @@ export const CONTACT = {
     {
       id: "resume",
       label: "resume",
-      value: "on request via channel",
-      href: "mailto:advaysinhaa@gmail.com?subject=resume%20request",
+      value: "pdf · updated 2026.06",
+      href: "/AdvayResume.pdf",
     },
   ] satisfies readonly ContactChannel[],
 

@@ -14,7 +14,8 @@ export function ContactLinks() {
         <li key={channel.id}>
           <a
             href={channel.href}
-            {...(channel.href.startsWith("http")
+            {...(channel.href.startsWith("http") ||
+            channel.href.endsWith(".pdf")
               ? { rel: "noreferrer", target: "_blank" }
               : {})}
             className={cn(

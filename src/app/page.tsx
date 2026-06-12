@@ -138,9 +138,12 @@ export default function Home() {
  * Passage marker: one mono readout of what lies ahead — real
  * wayfinding derived from the map, not decoration. It renders without
  * a z-index, so the fixed fog veil (z-fog) paints OVER it: the marker
- * is dimmest exactly at mid-corridor where fog peaks and resolves as
- * the next chamber approaches — depth signage behaving like it's
- * actually in the corridor, with zero JS. aria-hidden: the nav rail
+ * dims through peak fog and resolves as the next chamber approaches —
+ * depth signage behaving like it's actually in the corridor, with
+ * zero JS. It sits at ~38% of the corridor rather than dead center,
+ * so it reads early in the transit and has already cleared the fog
+ * peak by mid-descent — signage resolves sooner, the corridor never
+ * holds an unmarked stretch (Phase 13.8). aria-hidden: the nav rail
  * already owns this information semantically.
  */
 function CorridorSpacer({
@@ -156,8 +159,11 @@ function CorridorSpacer({
     <div
       aria-hidden
       data-corridor={id}
-      className="flex items-center justify-center"
-      style={{ height: `calc(${lengthVh}vh * var(--corridor-scale))` }}
+      className="flex items-start justify-center"
+      style={{
+        height: `calc(${lengthVh}vh * var(--corridor-scale))`,
+        paddingTop: `calc(${lengthVh * 0.38}vh * var(--corridor-scale))`,
+      }}
     >
       {ahead !== undefined && (
         <MonoLabel

@@ -34,6 +34,23 @@ import {
 
 export type TerminalLineKind = "echo" | "output" | "muted" | "error" | "link";
 
+/* ----------------------------------------------------------------
+   SESSION IDENTITY — the prompt string is derived from content/,
+   never invented: operator from the identity record, host from the
+   facility designation. One truth source, same as every command.
+   ---------------------------------------------------------------- */
+export const SESSION_USER =
+  IDENTITY.name.split(" ")[0]?.toLowerCase() ?? "operator";
+export const SESSION_HOST = FACILITY.designation.toLowerCase();
+export const SESSION_PROMPT = `${SESSION_USER}@${SESSION_HOST}:~$`;
+
+/**
+ * Command groups — the index reads as sections, not a flat dump.
+ * Order here is display order in `help`.
+ */
+const GROUP_ORDER = ["navigation", "identity", "systems", "operational"] as const;
+type CommandGroup = (typeof GROUP_ORDER)[number];
+
 export interface TerminalLineSpec {
   kind: TerminalLineKind;
   text: string;
@@ -51,6 +68,8 @@ interface CommandSpec {
   /** Usage string for `help`, e.g. "open <system>". */
   usage: string;
   description: string;
+  /** Section in the `help` index. Hidden commands carry none. */
+  group?: CommandGroup;
   hidden?: boolean;
   run: (arg: string) => CommandResult;
 }
@@ -93,17 +112,28 @@ const REGISTRY: Record<string, CommandSpec> = {
   help: {
     usage: "help",
     description: "command index",
+    group: "navigation",
     run: () => ({
-      lines: Object.entries(REGISTRY)
-        .filter(([, spec]) => spec.hidden !== true)
-        .map(([, spec]) =>
-          muted(`${spec.usage.padEnd(16)} ${spec.description}`)
-        ),
+      // Grouped index: section header dim, rows brighter — hierarchy
+      // by brightness, the same law as everything else in the chamber.
+      lines: GROUP_ORDER.flatMap((group) => {
+        const rows = Object.values(REGISTRY).filter(
+          (spec) => spec.hidden !== true && spec.group === group
+        );
+        if (rows.length === 0) return [];
+        return [
+          muted(group),
+          ...rows.map((spec) =>
+            out(`  ${spec.usage.padEnd(16)} ${spec.description}`)
+          ),
+        ];
+      }),
     }),
   },
   systems: {
     usage: "systems",
     description: "vault records",
+    group: "navigation",
     run: () => ({
       lines: [
         ...SYSTEMS.map((s) =>
@@ -117,6 +147,7 @@ const REGISTRY: Record<string, CommandSpec> = {
   logs: {
     usage: "logs",
     description: "operation chronology",
+    group: "navigation",
     run: () => ({
       lines: [
         ...LOGS.map((l) =>
@@ -131,6 +162,7 @@ const REGISTRY: Record<string, CommandSpec> = {
   contact: {
     usage: "contact",
     description: "communication channels",
+    group: "navigation",
     run: () => ({
       lines: [
         ...CONTACT.channels.map((c) => link(`${c.label}: ${c.value}`, c.href)),
@@ -141,16 +173,17 @@ const REGISTRY: Record<string, CommandSpec> = {
   },
   resume: {
     usage: "resume",
-    description: "operator record access",
+    description: "operator record · pdf",
+    group: "navigation",
     run: () => {
       const resume = CONTACT.channels.find((c) => c.id === "resume");
-      const email = CONTACT.channels.find((c) => c.id === "email");
+      if (resume === undefined) {
+        return { lines: [muted("> no resume channel registered")] };
+      }
       return {
         lines: [
-          out(`resume: ${resume?.value ?? "on request"}`),
-          ...(email !== undefined
-            ? [link(`> request via ${email.value}`, resume?.href ?? email.href)]
-            : []),
+          out(`resume: ${resume.value}`),
+          link(`> open: ${resume.href}`, resume.href),
         ],
       };
     },
@@ -158,6 +191,7 @@ const REGISTRY: Record<string, CommandSpec> = {
   clear: {
     usage: "clear",
     description: "wipe the session log",
+    group: "navigation",
     run: () => ({ lines: [], clear: true }),
   },
 
@@ -165,6 +199,7 @@ const REGISTRY: Record<string, CommandSpec> = {
   whoami: {
     usage: "whoami",
     description: "operator record",
+    group: "identity",
     run: () => ({
       lines: [
         out(`${IDENTITY.name} · ${IDENTITY.role}`),
@@ -175,6 +210,7 @@ const REGISTRY: Record<string, CommandSpec> = {
   focus: {
     usage: "focus",
     description: "current operational direction",
+    group: "identity",
     run: () => ({
       lines: [out(`current focus: ${IDENTITY.focus}`)],
     }),
@@ -182,6 +218,7 @@ const REGISTRY: Record<string, CommandSpec> = {
   stack: {
     usage: "stack",
     description: "infrastructure per system",
+    group: "identity",
     run: () => ({
       lines: SYSTEMS.map((s) =>
         out(`${s.designation} · ${s.stack.join(" · ")}`)
@@ -191,6 +228,7 @@ const REGISTRY: Record<string, CommandSpec> = {
   philosophy: {
     usage: "philosophy",
     description: "operational doctrine",
+    group: "identity",
     run: () => ({ lines: PHILOSOPHY.map(out) }),
   },
 
@@ -198,6 +236,7 @@ const REGISTRY: Record<string, CommandSpec> = {
   open: {
     usage: "open <system>",
     description: "system record (marp · ats · float · mock · nexus)",
+    group: "systems",
     run: (arg) => {
       const key = arg.trim().toLowerCase();
       if (key === "") {
@@ -226,6 +265,7 @@ const REGISTRY: Record<string, CommandSpec> = {
   constraints: {
     usage: "constraints",
     description: "design pressure per system",
+    group: "systems",
     run: () => ({
       lines: SYSTEMS.flatMap((s) =>
         s.dossier !== undefined
@@ -240,6 +280,7 @@ const REGISTRY: Record<string, CommandSpec> = {
   failures: {
     usage: "failures",
     description: "preserved failure traces",
+    group: "systems",
     run: () => ({
       lines: LOGS.flatMap((l) =>
         l.failureNote !== undefined
@@ -251,6 +292,7 @@ const REGISTRY: Record<string, CommandSpec> = {
   reasoning: {
     usage: "reasoning",
     description: "why these shapes and not others",
+    group: "systems",
     run: () => ({
       lines: SYSTEMS.flatMap((s) =>
         s.dossier !== undefined
@@ -264,6 +306,7 @@ const REGISTRY: Record<string, CommandSpec> = {
   status: {
     usage: "status",
     description: "facility state",
+    group: "operational",
     run: () => ({
       lines: [
         out(
@@ -278,6 +321,7 @@ const REGISTRY: Record<string, CommandSpec> = {
   latency: {
     usage: "latency",
     description: "what is and is not measured",
+    group: "operational",
     run: () => ({
       lines: [
         out("request latency: not instrumented — no number is shown that is not measured."),
@@ -288,6 +332,7 @@ const REGISTRY: Record<string, CommandSpec> = {
   uptime: {
     usage: "uptime",
     description: "availability posture",
+    group: "operational",
     run: () => ({
       lines: [
         out("uptime monitoring: not configured. deployment state ships from build metadata."),

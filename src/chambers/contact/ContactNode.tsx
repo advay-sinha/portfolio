@@ -78,7 +78,7 @@ export function ContactNode() {
             as="p"
             className="inline-flex items-baseline gap-(--space-2xs)"
           >
-            NEXUS · {new Date().getFullYear()} · status: operational
+            PORTFOLIO · {new Date().getFullYear()} · status: operational
             <StatusDot tone="ok" className="self-center" />
           </MonoLabel>
         </div>

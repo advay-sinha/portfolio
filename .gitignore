@@ -34,6 +34,8 @@ build/
 out/
 *.tsbuildinfo
 .next
+.mcp.json
+
 
 # Testing
 coverage/
