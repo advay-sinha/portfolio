@@ -1,5 +1,15 @@
-import { CONTACT, FACILITY, IDENTITY, PHILOSOPHY } from "@/content/identity";
-import { LOGS } from "@/content/logs";
+import {
+  CERTIFICATIONS,
+  PROVIDER_COUNT,
+} from "@/content/certifications";
+import {
+  CONTACT,
+  FACILITY,
+  IDENTITY,
+  PHILOSOPHY,
+  SESSION,
+} from "@/content/identity";
+import { JOURNEY } from "@/content/journey";
 import {
   ACTIVE_SYSTEMS,
   ARCHIVED_SYSTEMS,
@@ -22,10 +32,10 @@ import {
  * hacking, no theater).
  *
  * TRUTH SOURCE LAW: commands contain no prose of their own. Every
- * line derives from content/ (identity, systems, logs,
- * telemetry-sources) — the terminal is another interface into the
- * same truth, so the vault, the logs, and the operator can never
- * disagree with it.
+ * line derives from content/ (identity, systems, journey,
+ * certifications, telemetry-sources) — the terminal is another
+ * interface into the same truth, so the vault, the journey, and the
+ * operator can never disagree with it.
  *
  * Hidden commands (`pin`, `budgets`, `sudo`) are undocumented but as
  * honest as everything else — each answer is verifiable against this
@@ -35,14 +45,13 @@ import {
 export type TerminalLineKind = "echo" | "output" | "muted" | "error" | "link";
 
 /* ----------------------------------------------------------------
-   SESSION IDENTITY — the prompt string is derived from content/,
-   never invented: operator from the identity record, host from the
-   facility designation. One truth source, same as every command.
+   SESSION IDENTITY — derived once in content/identity.ts (the boot
+   sequence reads the same record); re-exported here so the terminal
+   render layer keeps one import path. One truth source, everywhere.
    ---------------------------------------------------------------- */
-export const SESSION_USER =
-  IDENTITY.name.split(" ")[0]?.toLowerCase() ?? "operator";
-export const SESSION_HOST = FACILITY.designation.toLowerCase();
-export const SESSION_PROMPT = `${SESSION_USER}@${SESSION_HOST}:~$`;
+export const SESSION_USER = SESSION.user;
+export const SESSION_HOST = SESSION.host;
+export const SESSION_PROMPT = SESSION.prompt;
 
 /**
  * Command groups — the index reads as sections, not a flat dump.
@@ -132,7 +141,7 @@ const REGISTRY: Record<string, CommandSpec> = {
   },
   systems: {
     usage: "systems",
-    description: "vault records",
+    description: "project records",
     group: "navigation",
     run: () => ({
       lines: [
@@ -140,22 +149,34 @@ const REGISTRY: Record<string, CommandSpec> = {
           out(`${s.designation} · ${s.title} · ${s.status}`)
         ),
         muted("> 'open <marp|ats|float|mock|nexus>' for the record"),
-        link("> jump: system vault", "#vault"),
+        link("> jump: project vault", "#vault"),
       ],
     }),
   },
-  logs: {
-    usage: "logs",
-    description: "operation chronology",
+  journey: {
+    usage: "journey",
+    description: "education & experience chronology",
     group: "navigation",
     run: () => ({
       lines: [
-        ...LOGS.map((l) =>
-          out(
-            `${l.id} · [${l.type}] ${l.title}${l.severity === "critical" ? " · critical" : ""}`
-          )
+        ...JOURNEY.map((e) =>
+          out(`${e.span.padEnd(18)} [${e.type}] ${e.org} — ${e.title}`)
         ),
-        link("> jump: mission logs", "#logs"),
+        link("> jump: journey", "#logs"),
+      ],
+    }),
+  },
+  certs: {
+    usage: "certs",
+    description: "credential records · pdf",
+    group: "navigation",
+    run: () => ({
+      lines: [
+        out(`${CERTIFICATIONS.length} records · ${PROVIDER_COUNT} issuers`),
+        ...CERTIFICATIONS.map((c) =>
+          link(`${c.issued} · ${c.provider} · ${c.title}`, c.file)
+        ),
+        link("> jump: certifications", "#live"),
       ],
     }),
   },
@@ -273,18 +294,6 @@ const REGISTRY: Record<string, CommandSpec> = {
               muted(s.designation.toLowerCase()),
               ...s.dossier.constraints.map((c) => out(`· ${c}`)),
             ]
-          : []
-      ),
-    }),
-  },
-  failures: {
-    usage: "failures",
-    description: "preserved failure traces",
-    group: "systems",
-    run: () => ({
-      lines: LOGS.flatMap((l) =>
-        l.failureNote !== undefined
-          ? [out(`${l.id} · ${l.title}`), muted(`! ${l.failureNote}`)]
           : []
       ),
     }),

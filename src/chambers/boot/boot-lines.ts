@@ -2,10 +2,12 @@
  * boot-lines.ts — real session lines, build-time data
  * (implementation-architecture §2, §13).
  *
- * The boot references PRIOR operation, never initialization from zero
- * (homepage-experience §4.0, spatial-language §5): the facility was
- * running before the visitor arrived. Every value is real:
- * - the system count derives from content/identity.ts,
+ * Phase 14: the boot initializes a PERSONAL operational workspace —
+ * identity first, no fictional facility framing, no system-count
+ * theater. Think a quiet Linux workstation reaching a login shell.
+ * Every value is still real:
+ * - the session string derives from content/identity.ts (the same
+ *   operator@host the terminal prompt uses),
  * - the deployment stamp is evaluated when this module loads on the
  *   server — for a statically generated page that is build time, which
  *   IS the last deployment. On Vercel, swap the stamp source to the
@@ -16,7 +18,7 @@
  * re-evaluate per visit and turn the stamp into a lie.
  */
 
-import { IDENTITY } from "@/content/identity";
+import { SESSION } from "@/content/identity";
 
 const now = new Date();
 const pad = (value: number) => String(value).padStart(2, "0");
@@ -24,11 +26,12 @@ const DEPLOY_STAMP = `${now.getFullYear()}.${pad(now.getMonth() + 1)}.${pad(now.
 
 /**
  * 3–4 short lines, fast terminal cadence (interaction-principles §3).
- * No hacker theatrics, no fake subsystems — each line is a fact.
+ * No hacker theatrics, no fake subsystems — each line is a fact:
+ * whose session this is, what workspace loads, when it last shipped.
  */
 export const BOOT_LINES: readonly string[] = [
-  "> resuming session",
-  `> ${IDENTITY.systems.length} systems operational`,
+  `> session: ${SESSION.user}@${SESSION.host}`,
+  "> loading workspace: backend · ai/ml",
   `> last deployment: ${DEPLOY_STAMP}`,
-  "> channel open",
+  "> ready",
 ];

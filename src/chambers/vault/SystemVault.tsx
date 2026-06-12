@@ -39,7 +39,7 @@ import { MonoLabel } from "@/primitives/MonoLabel";
 export function SystemVault() {
   // Real counts only — zero-count categories simply don't speak.
   const subReadout = [
-    `${ACTIVE_SYSTEMS.length} systems`,
+    `${ACTIVE_SYSTEMS.length} projects`,
     ARCHIVED_SYSTEMS.length > 0 ? `${ARCHIVED_SYSTEMS.length} archived` : null,
     EXPERIMENTAL_COUNT > 0 ? `${EXPERIMENTAL_COUNT} experimental` : null,
   ]
@@ -61,14 +61,14 @@ export function SystemVault() {
       <div className="relative mx-auto w-full max-w-(--layout-max) px-(--layout-margin)">
         <RevealGroup className="flex flex-col gap-(--space-2xs) pb-(--space-xl)">
           <Reveal kind="mono" step={0}>
-            <MonoLabel as="p">DEPTH.02 · SYS.VAULT / 02</MonoLabel>
+            <MonoLabel as="p">DEPTH.02 · PROJECT VAULT / 02</MonoLabel>
           </Reveal>
           <Reveal kind="panel" step={1}>
             <h2
               id="vault-title"
               className="text-(length:--text-h2) leading-(--leading-heading) [font-weight:var(--weight-medium)]"
             >
-              System Vault
+              Project Vault
             </h2>
           </Reveal>
           <Reveal kind="mono" step={2}>

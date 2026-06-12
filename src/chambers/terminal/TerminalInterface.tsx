@@ -57,7 +57,7 @@ import { StatusDot } from "@/primitives/StatusDot";
 // content/ (the same truth the commands read); "deterministic" is the
 // shell's actual contract (commands.ts) — chrome only where it's true.
 const GREETING: readonly TerminalLineSpec[] = [
-  { kind: "output", text: "maintenance access layer · direct interface" },
+  { kind: "output", text: "personal engineering console · direct interface" },
   {
     kind: "muted",
     text: `host: ${SESSION_HOST} · operator: ${SESSION_USER} · shell: deterministic`,
@@ -161,7 +161,7 @@ export function TerminalInterface() {
           <Panel
             as="div"
             label="TERMINAL"
-            meta={`${SESSION_USER}@${SESSION_HOST} · maintenance access`}
+            meta={`${SESSION_USER}@${SESSION_HOST} · personal console`}
             status={
               <>
                 <StatusDot tone="ok" />
@@ -178,7 +178,7 @@ export function TerminalInterface() {
                   §4): typing stays optional. Real buttons, ≥44px targets,
                   rendered for every input mode. */}
               <div className="flex flex-wrap gap-(--space-2xs)">
-                {(["help", "systems", "logs", "contact"] as const).map(
+                {(["help", "systems", "journey", "contact"] as const).map(
                   (cmd) => (
                     <button
                       key={cmd}

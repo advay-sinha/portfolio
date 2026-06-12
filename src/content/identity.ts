@@ -17,27 +17,41 @@
 export const IDENTITY = {
   name: "Advay Sinha",
   /** Rendered as a MonoLabel — uppercase + tracking applied by type, not by copy. */
-  role: "systems engineer · ai infrastructure",
+  role: "backend developer · ai/ml engineer",
 
   /**
-   * The one Grotesk paragraph in the Neural Core (≤65ch measure,
-   * ≤4 lines). Constraint-first per storytelling.md §2.1; the closing
-   * phrase is the engineering-philosophy thesis, verbatim.
+   * The one Grotesk paragraph in the About chamber (≤65ch measure,
+   * ≤4 lines). Every claim is verifiable against the resume in
+   * context/: Zarva speech recognition, Alignerr model evaluation,
+   * the systems in the vault. The closing phrase is the
+   * engineering-philosophy thesis, verbatim.
    */
   summary:
-    "Designs backend systems where behavior under pressure matters " +
-    "more than the demo: multi-agent research pipelines, market " +
-    "simulation, conversational data systems. The recurring " +
-    "problem: how intelligence behaves under constraints.",
+    "B.Tech CSE (AI) at Bennett University. Has shipped real-time " +
+    "speech recognition for live cab-safety systems, evaluates " +
+    "frontier models for alignment, and builds multi-agent research " +
+    "pipelines and market simulators. The recurring problem: how " +
+    "intelligence behaves under constraints.",
 
-  /** Mono readouts, never skill bars. Max 6 — the stagger cap is also the content cap. */
+  /**
+   * What he genuinely enjoys building — the About chamber's one
+   * personal mono line. Each item maps to a real system or role.
+   */
+  enjoys:
+    "agent pipelines · retrieval systems · market simulators · " +
+    "tools that can explain their own state",
+
+  /**
+   * Mono readouts, never skill bars. Max 6 — the stagger cap is also
+   * the content cap. Stacks are the resume's, verbatim subsets.
+   */
   capabilities: [
-    "multi-agent orchestration",
-    "retrieval & evidence grounding",
-    "backend architecture",
-    "llm integration & fallback design",
-    "data pipelines & visualization",
-    "auth, sessions & persistence",
+    "backend — fastapi · spring boot · node.js",
+    "ai/ml — pytorch · rag pipelines · rlhf evaluation",
+    "data — postgresql · mongodb · chromadb",
+    "realtime — websockets · speech recognition",
+    "languages — python · java · c++ · typescript",
+    "infra — docker · ci/cd · jwt auth",
   ],
 
   /**
@@ -60,6 +74,21 @@ export const IDENTITY = {
   /** Facility local time — the engineer's zone, not the visitor's. */
   timeZone: "Asia/Kolkata",
   timeZoneLabel: "IST",
+} as const;
+
+/**
+ * Session identity — operator@host, derived once here so the boot
+ * sequence and the terminal can never disagree about whose machine
+ * this is. Operator from the identity record, host from the facility
+ * designation.
+ */
+const sessionUser = IDENTITY.name.split(" ")[0]?.toLowerCase() ?? "operator";
+const sessionHost = "nexus";
+
+export const SESSION = {
+  user: sessionUser,
+  host: sessionHost,
+  prompt: `${sessionUser}@${sessionHost}:~$`,
 } as const;
 
 /**

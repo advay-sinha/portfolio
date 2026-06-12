@@ -7,7 +7,9 @@ import { Panel } from "@/primitives/Panel";
 import { StatusDot } from "@/primitives/StatusDot";
 
 /**
- * NeuralCore — DEPTH.01, the control room (homepage-experience §4.1).
+ * NeuralCore — DEPTH.01, ABOUT: who operates this place
+ * (homepage-experience §4.1; Phase 14 personalization — same room,
+ * the copy now speaks about the engineer, not the facility).
  * Server component: everything here is static document except the two
  * leaf islands it composes (NeuralViz — the chamber's one signature
  * interaction; LocalTime — the one live data detail).
@@ -75,10 +77,10 @@ export function NeuralCore() {
 
         <div className="col-span-12 flex flex-col gap-(--space-md) md:col-span-6 md:col-start-2 md:row-start-1">
           <Reveal kind="mono" step={0}>
-            <MonoLabel as="p">DEPTH.01 · SYS.CORE / 01</MonoLabel>
+            <MonoLabel as="p">DEPTH.01 · ABOUT / 01</MonoLabel>
           </Reveal>
           <h2 id="core-title" className="sr-only">
-            Neural Core
+            About
           </h2>
 
           <Reveal kind="panel" step={1}>
@@ -114,9 +116,19 @@ export function NeuralCore() {
                   ))}
                 </dl>
 
+                {/* The one personal line — what he enjoys building.
+                    Mono, lowercase, quiet: an interest readout, not a
+                    bio flourish. */}
+                <Reveal kind="mono" step={9}>
+                  <MonoLabel as="p" className="normal-case">
+                    <span className="opacity-60">enjoys building </span>
+                    {IDENTITY.enjoys}
+                  </MonoLabel>
+                </Reveal>
+
                 {/* Status line — ignites last; the room is running
                     before its only live row speaks. */}
-                <Reveal kind="mono" step={9}>
+                <Reveal kind="mono" step={10}>
                   <MonoLabel
                     as="p"
                     className="flex flex-wrap items-baseline gap-x-(--space-sm) gap-y-(--space-3xs) border-t-(length:--hairline-width) border-(color:--nexus-hairline) pt-(--space-sm)"

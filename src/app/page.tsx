@@ -1,9 +1,9 @@
 import { BOOT_LINES } from "@/chambers/boot/boot-lines";
 import { BootSequence } from "@/chambers/boot/BootSequence";
+import { Certifications } from "@/chambers/certs/Certifications";
 import { ContactNode } from "@/chambers/contact/ContactNode";
 import { NeuralCore } from "@/chambers/core/NeuralCore";
-import { LiveSystems } from "@/chambers/live/LiveSystems";
-import { MissionLogs } from "@/chambers/logs/MissionLogs";
+import { Journey } from "@/chambers/journey/Journey";
 import { TerminalInterface } from "@/chambers/terminal/TerminalInterface";
 import { SystemVault } from "@/chambers/vault/SystemVault";
 import { IDENTITY } from "@/content/identity";
@@ -28,12 +28,15 @@ import { MonoLabel } from "@/primitives/MonoLabel";
  * the page's single Cut).
  */
 
+// Phase 14: chamber names speak about the engineer, not the facility.
+// Stratum ids (and the #anchors they produce) stay stable — the
+// descent engine and deep links never notice a rename.
 const NAV_LABELS: Record<StratumId, string> = {
   boot: "BOOT",
-  core: "SYS.CORE",
-  vault: "SYS.VAULT",
-  logs: "SYS.LOGS",
-  live: "SYS.LIVE",
+  core: "ABOUT",
+  vault: "PROJECTS",
+  logs: "JOURNEY",
+  live: "CERTS",
   terminal: "TERMINAL",
   contact: "CONTACT",
 };
@@ -65,12 +68,9 @@ function chamberFor(id: StratumId) {
     case "vault":
       return <SystemVault />;
     case "logs":
-      return <MissionLogs />;
+      return <Journey />;
     case "live":
-      // Async server component — telemetry fetched at render, ISR 60s.
-      // Returns null when every source degrades: the stratum band stays
-      // as honest dark void (height comes from the map, never content).
-      return <LiveSystems />;
+      return <Certifications />;
     case "terminal":
       return <TerminalInterface />;
     case "contact":
