@@ -112,11 +112,6 @@ export const CONTACT = {
   sentence:
     "If something here is worth building on, I read every transmission.",
   channels: [
-    { id: "phone",
-      label: "phone",
-      value: "+919835428707",
-      href: "tel:+919835428707",
-    },
     {
       id: "email",
       label: "email",
