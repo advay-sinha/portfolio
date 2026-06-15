@@ -95,7 +95,7 @@ export default async function DossierPage({
             &gt; return to vault
           </Link>
           <MonoLabel as="p">
-            DOSSIER · {system.designation} ·{" "}
+            DETAILS · {system.designation} ·{" "}
             <span className="inline-flex items-baseline gap-(--space-2xs)">
               <StatusDot
                 tone={system.status === "experimental" ? "warn" : "ok"}
@@ -124,7 +124,7 @@ export default async function DossierPage({
         </Reveal>
 
         <Reveal kind="mono" step={2}>
-          <DossierSection label="operational overview">
+          <DossierSection label="project overview">
             <p>{dossier.overview}</p>
           </DossierSection>
         </Reveal>

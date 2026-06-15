@@ -111,7 +111,7 @@ export function SystemPanel({ system, className }: SystemPanelProps) {
               "hover:text-(color:--nexus-glow) focus-visible:text-(color:--nexus-glow)"
             )}
           >
-            &gt; open dossier
+            &gt; expand
           </Link>
         )}
       </div>

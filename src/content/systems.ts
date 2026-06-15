@@ -64,7 +64,7 @@ export interface DossierRecord {
 
 export interface SystemRecord {
   slug: string;
-  /** Mono designation, e.g. "SYS.MARP / 01". */
+  /** Mono designation, e.g. "PROJ.MARP / 01". */
   designation: string;
   title: string;
   /** One-line system role — what it does in the larger graph. */
@@ -87,7 +87,7 @@ export interface SystemRecord {
 export const SYSTEMS: readonly SystemRecord[] = [
   {
     slug: "multi-agentic-research-platform",
-    designation: "SYS.MARP / 01",
+    designation: "PROJ.MARP / 01",
     title: "Multi-Agentic Research Platform",
     role: "evidence-grounded research over a five-stage agent pipeline",
     constraint:
@@ -106,7 +106,7 @@ export const SYSTEMS: readonly SystemRecord[] = [
     repo: "github.com/advay-sinha/Multiagentic-Research-Platform",
     dossier: {
       overview:
-        "MARP exists because a single LLM call cannot be audited: it answers, but it cannot show its work. The platform decomposes research into five specialized agents in sequence, iterates until the answer meets a confidence threshold or hits the iteration cap, and returns every step traced and timed for inspection.",
+        "Multi-Agentic Research Platform is an evidence-grounded AI research system built around a five-stage agent pipeline: Planner, Retriever, Writer, Critic, and Verifier. The platform decomposes research queries into retrieval steps, performs vector search using PostgreSQL + pgvector, generates grounded answers from retrieved evidence, verifies claims against sources, and returns full execution traces with per-stage metrics. Built with FastAPI, PostgreSQL + pgvector, Gemini embeddings, TypeScript, Docker, and realtime SSE streaming.",
       architecture:
         "The Planner turns the question into a structured retrieval plan (typed PlanStep objects: sub-question plus search query). The Retriever runs cosine-similarity search against PostgreSQL with pgvector — embeddings generated through Gemini's embedContent API — and returns ranked chunks with source metadata and similarity scores. The Writer drafts from evidence, the Critic challenges the draft, and the Verifier checks claims before release; the Critic→Writer loop repeats until confidence clears the bar. Every agent emits typed trace events.",
       constraints: [
@@ -125,7 +125,7 @@ export const SYSTEMS: readonly SystemRecord[] = [
         "the Retriever currently executes only the first PlanStep of a multi-step plan — a known limit, preserved in the trace rather than papered over",
       ],
       reasoning:
-        "The interesting problem was never the model — it was how intelligence behaves under constraints: what pipeline shape makes an LLM's answer auditable instead of plausible. Single-responsibility stages with typed contracts and traces are boring, and boring is what can be debugged.",
+          "Designed around single-responsibility agents with typed contracts and execution traces so each stage can be debugged, replaced, or evaluated independently. The system prioritizes evidence grounding, bounded iteration, and observable pipeline state over single-pass generation.",
       future: [
         "execute the full retrieval plan, not just its first step",
         "confidence calibration against held-out questions",
@@ -134,7 +134,7 @@ export const SYSTEMS: readonly SystemRecord[] = [
   },
   {
     slug: "algo-trade-simulator",
-    designation: "SYS.ATS / 02",
+    designation: "PROJ.ATS / 02",
     title: "Algo Trade Simulator",
     role: "trains and runs trading strategies against live markets, on simulated capital",
     constraint:
@@ -153,9 +153,9 @@ export const SYSTEMS: readonly SystemRecord[] = [
     repo: "github.com/advay-sinha/Algo-Trade-Simulator",
     dossier: {
       overview:
-        "ATS exists to research strategies without risking capital: stream the real market, trade a simulated book. The FastAPI backend owns market data, strategy training, accounts, and simulations; the React + Vite frontend surfaces live charts, portfolio state, and trained strategies.",
+        "Algo Trade Simulator is a full-stack trading simulation platform for researching strategies against live market data without executing real trades. The platform streams live quotes and chart data from Yahoo Finance, trains SMA crossover strategies on historical data, generates realtime market signals, and manages simulated portfolios with persistent user sessions and analytics dashboards. Built with FastAPI, React + Vite, MongoDB, TypeScript, and OpenAI-assisted research tooling.",
       architecture:
-        "Live quotes, charts, and intraday stats stream from Yahoo Finance for any searchable ticker. The strategy engine trains an SMA crossover on five years of historical data and serves live signals against the latest market regime. Accounts, sessions, and simulations persist in MongoDB through Motor (async), with an in-memory store available for quick local runs. A hybrid chatbot copilot — OpenAI chat completions with heuristic fallbacks — answers research questions and creates simulations from prompts like 'create a simulation for AAPL with 25k'. Sessions restore from browser storage.",
+        "The FastAPI backend handles market data ingestion, strategy training, authentication, portfolio simulations, and analytics APIs. The React + Vite frontend provides live charts, watchlists, portfolio views, strategy dashboards, and simulation management. Market data is sourced from Yahoo Finance APIs. Strategy training runs SMA crossover backtests against five years of historical data and generates live predictions from the latest market regime. User accounts, sessions, and simulations persist through MongoDB using Motor (async), with an optional in-memory mode for zero-setup local development. A hybrid chatbot copilot combines OpenAI completions with heuristic fallbacks to answer research queries and generate simulations from natural-language prompts.",
       constraints: [
         "market data dependency — the platform is downstream of a public quote API it does not control",
         "simulation honesty — signals come from the live regime, but execution stays simulated; the boundary is structural",
@@ -171,7 +171,7 @@ export const SYSTEMS: readonly SystemRecord[] = [
         "the in-memory fallback exists because database connectivity is a real failure mode, not a hypothetical",
       ],
       reasoning:
-        "Trading systems make probabilistic reasoning concrete: a strategy's edge either survives the live regime or it doesn't, and a simulated ledger makes being wrong cheap and visible. Keeping data, strategy, and persistence as separate services means each can fail — and be observed failing — independently.",
+        "Designed to separate market ingestion, strategy evaluation, portfolio simulation, and AI-assisted workflows into independent services so failures in one subsystem do not block the rest of the platform. Heuristic fallbacks were added alongside LLM-based parsing after model-only flows produced malformed simulation requests from loose prompts.",
       future: [
         "additional strategy families beyond SMA crossover",
         "richer execution modeling (slippage, latency) on the simulated book",
@@ -180,7 +180,7 @@ export const SYSTEMS: readonly SystemRecord[] = [
   },
   {
     slug: "floatchat",
-    designation: "SYS.FLOAT / 03",
+    designation: "PROJ.FLOAT / 03",
     title: "FloatChat",
     role: "conversational explorer for the ARGO ocean-float archive",
     constraint:
@@ -194,14 +194,14 @@ export const SYSTEMS: readonly SystemRecord[] = [
     ],
     status: "operational",
     summary:
-      "An interactive explorer for ARGO float data, Indian Ocean focus: maps, depth profiles, Hovmöller diagrams, float comparisons — and a natural-language assistant that turns questions about places, time windows, and statistics into charts and summaries.",
+        "FloatChat is an interactive oceanographic data exploration platform built around the ARGO float archive. The application converts large NetCDF float datasets into cached Parquet stores for low-latency querying, then provides natural-language search, spatial filtering, statistical analysis, and scientific visualisations through a Streamlit interface. Users can explore float activity through Plotly maps, Cesium 3D views, depth profiles, Hovmöller diagrams, comparison tools, and chat-driven analytics focused on the Indian Ocean region.",
     schematicId: "floatchat",
     repo: "github.com/advay-sinha/FloatChat-AI",
     dossier: {
       overview:
-        "FloatChat exists because oceanographic archives are rich and unreadable: NetCDF files, instrument jargon, no interface for a question like 'average salinity near Odisha in March 2023'. The application turns the ARGO float archive into an explorable interface with a chat layer that understands the data's own vocabulary.",
+      "FloatChat is an interactive oceanographic data exploration platform built around the ARGO float archive. The application converts large NetCDF float datasets into cached Parquet stores for low-latency querying, then provides natural-language search, spatial filtering, statistical analysis, and scientific visualisations through a Streamlit interface. Users can explore float activity through Plotly maps, Cesium 3D views, depth profiles, Hovmöller diagrams, comparison tools, and chat-driven analytics focused on the Indian Ocean region.",
       architecture:
-        "An offline converter prepares the archive — NetCDF into Parquet — so the live application reads a compact cached store. Streamlit drives the interface: Plotly maps, a static Leaflet view, a Cesium 3D globe, depth profiles, Hovmöller diagrams, float-to-float comparisons, raw tables, and export utilities, blended with NOAA buoy metadata and INCOIS mooring overlays. The chat layer parses places, coordinates, time windows, statistics, and nearest-float lookups against the cache, answering with inline charts and aggregated summaries.",
+        "An offline preprocessing pipeline converts ARGO NetCDF datasets into compact Parquet caches optimised for interactive querying. The Streamlit frontend coordinates visual exploration tabs, cached analytics, session state, and the chat interface. The query pipeline combines rule-based parsing with geocoding and statistical intent detection to translate natural-language prompts into temporal, spatial, and parameter filters against cached DataFrames. Matching results generate charts, summaries, profiles, and comparison views directly from the dataset. Optional fallback layers integrate DuckDuckGo snippets and locally hosted Ollama models when cached data cannot satisfy a query.",
       constraints: [
         "archive weight — raw NetCDF is too heavy to query interactively; conversion is a precondition, not an optimization",
         "query vocabulary — questions arrive as geography and oceanography ('PSAL near Lakshadweep'), not as column names",
@@ -216,7 +216,7 @@ export const SYSTEMS: readonly SystemRecord[] = [
         "the fallback chain is explicit and ordered: cached data first; DuckDuckGo snippets when the cache cannot answer; locally generated context only if an Ollama model is actually running — each rung degrades, none pretend",
       ],
       reasoning:
-        "Scientific data systems earn trust by answering from the data, not about it. Keeping the deterministic path (cache, statistics, charts) primary and the generative path explicitly secondary is the same degradation discipline as any backend: visible fallbacks, honest absence.",
+        "Designed around an offline-first architecture so scientific queries resolve directly from cached datasets instead of depending on external APIs or live archive access. Deterministic parsing and statistical analysis remain the primary execution path, while LLM-based responses are treated as optional fallback layers rather than core infrastructure.",
       future: [
         "broader geographic focus beyond the Indian Ocean defaults",
         "deeper BGC parameter comparisons",
@@ -225,7 +225,7 @@ export const SYSTEMS: readonly SystemRecord[] = [
   },
   {
     slug: "mock-ai",
-    designation: "SYS.MOCK / 04",
+    designation: "PROJ.MOCK / 04",
     title: "Mock AI",
     role: "AI mock-interview and assessment platform with voice interaction",
     constraint:
@@ -245,9 +245,9 @@ export const SYSTEMS: readonly SystemRecord[] = [
     repo: "github.com/advay-sinha/Mock-AI",
     dossier: {
       overview:
-        "Mock AI exists because interview practice needs an examiner that scales: something that writes questions for a specific subject and difficulty, listens to answers, and returns feedback specific enough to act on. The platform pairs a FastAPI service with a React single-page app and puts Gemini behind both question generation and qualitative evaluation.",
+      "MockAI is a full-stack mock interview and assessment platform that generates technical tests, simulates live interviews, and evaluates responses using Google Gemini. The platform combines a FastAPI backend with a React frontend to support AI-generated assessments, conversational onboarding, voice-enabled interview sessions, realtime feedback, and persistent performance tracking through MongoDB-backed user accounts and JWT-secured sessions.",
       architecture:
-        "The React frontend drives conversational onboarding — intent capture through test execution and analysis — plus a voice-enabled interview simulator using browser speech synthesis and speech-to-text with timed prompts. The FastAPI service owns authentication (hashed passwords, JWT via python-jose), question generation, and answer evaluation against Gemini 2.0 Flash. MongoDB persists users and sessions through Motor with unique-email enforcement and pooled connections; performance views render scores and improvement recommendations from stored sessions.",
+        "The React frontend handles onboarding flows, test-taking interfaces, dashboards, and browser-based voice interactions using Web Speech APIs. The FastAPI backend manages authentication, session handling, question generation, answer evaluation, and persistence services. Gemini 2.0 Flash powers both test generation and qualitative answer evaluation through backend-controlled API routes. MongoDB stores users, sessions, generated assessments, and evaluation history using Motor with pooled async connections and unique-email enforcement. The platform supports conversational test creation, role-specific interview simulations, timed prompts, speech synthesis, speech-to-text capture, and detailed feedback dashboards.",
       constraints: [
         "LLM accountability — generated questions and feedback flow through one backend service, never straight from the browser to the model",
         "session integrity — assessments mean nothing if identity and history are loose; JWT and unique-email enforcement are load-bearing",
@@ -261,7 +261,7 @@ export const SYSTEMS: readonly SystemRecord[] = [
         "a reserved java-backend module sits in the repository, currently empty — an honest placeholder for planned integration rather than a hidden dead end",
       ],
       reasoning:
-        "Putting an LLM inside a product is an infrastructure problem wearing an AI costume: the model is the easy part; auth, persistence, and making feedback traceable to a stored session are what make the assessment worth anything.",
+        "Designed to keep authentication, session management, question generation, and evaluation inside a centralized backend service instead of exposing model interactions directly to the client. Browser-native voice APIs were used to enable realtime interview flows without introducing dedicated audio-processing infrastructure.",
       future: [
         "the reserved Java service integration",
         "richer rubric-anchored scoring beyond qualitative feedback",

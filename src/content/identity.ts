@@ -27,19 +27,20 @@ export const IDENTITY = {
    * engineering-philosophy thesis, verbatim.
    */
   summary:
-    "B.Tech CSE (AI) at Bennett University. Has shipped real-time " +
-    "speech recognition for live cab-safety systems, evaluates " +
-    "frontier models for alignment, and builds multi-agent research " +
-    "pipelines and market simulators. The recurring problem: how " +
-    "intelligence behaves under constraints.",
+    "I’m a Computer Science student and backend-focused developer"+
+    " passionate about building scalable systems, AI-driven"+
+    " applications, and high-performance web platforms. My work"+
+    " spans backend engineering, speech recognition integrations,"+
+    " algorithmic trading simulations, and full-stack development using"+
+    " TypeScript, Node.js, React, MongoDB, and cloud technologies.",
 
   /**
    * What he genuinely enjoys building — the About chamber's one
    * personal mono line. Each item maps to a real system or role.
    */
   enjoys:
-    "agent pipelines · retrieval systems · market simulators · " +
-    "tools that can explain their own state",
+    "ML Infrastructure · retrieval systems · Finance simulators · " +
+    "backend systems",
 
   /**
    * Mono readouts, never skill bars. Max 6 — the stagger cap is also
@@ -68,8 +69,8 @@ export const IDENTITY = {
   ],
 
   /** Current operational direction — real, singular, updated by hand when it changes. */
-  focus: "agent pipelines · evidence-grounded retrieval",
-  availability: "channel open",
+  focus: "Real Life exposure · Large Projects",
+  availability: "accepting opportunities",
 
   /** Facility local time — the engineer's zone, not the visitor's. */
   timeZone: "Asia/Kolkata",

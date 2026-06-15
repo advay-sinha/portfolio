@@ -98,8 +98,16 @@ export function NeuralCore() {
               <div className="flex flex-col gap-(--space-md)">
                 <p className="max-w-(--measure-body)">{IDENTITY.summary}</p>
 
-                <dl className="grid grid-cols-1 gap-x-(--space-md) gap-y-(--space-2xs) border-t-(length:--hairline-width) border-(color:--nexus-hairline) pt-(--space-sm) sm:grid-cols-2">
-                  {IDENTITY.capabilities.map((capability, i) => (
+                <div className="flex flex-col gap-(--space-sm) border-t-(length:--hairline-width) border-(color:--nexus-hairline) pt-(--space-sm)">
+                  {/* Names the readout below: stacks are the project
+                      infrastructure, not abstract skills. Static like the
+                      summary above it — appears with the panel, then the
+                      readouts stagger in beneath. */}
+                  <MonoLabel as="p" className="opacity-60">
+                    Project Stacks:
+                  </MonoLabel>
+                  <dl className="grid grid-cols-1 gap-x-(--space-md) gap-y-(--space-2xs) sm:grid-cols-2">
+                    {IDENTITY.capabilities.map((capability, i) => (
                     <Reveal
                       key={capability}
                       kind="mono"
@@ -107,21 +115,22 @@ export function NeuralCore() {
                       className="flex items-baseline gap-(--space-2xs)"
                     >
                       <MonoLabel as="dt" className="opacity-60">
-                        cap.{String(i + 1).padStart(2, "0")}
+                        proj.{String(i + 1).padStart(2, "0")}
                       </MonoLabel>
                       <dd className="text-(length:--text-mono) leading-(--leading-mono) [font-family:var(--font-machine)]">
                         {capability}
                       </dd>
                     </Reveal>
-                  ))}
-                </dl>
+                    ))}
+                  </dl>
+                </div>
 
                 {/* The one personal line — what he enjoys building.
                     Mono, lowercase, quiet: an interest readout, not a
                     bio flourish. */}
                 <Reveal kind="mono" step={9}>
                   <MonoLabel as="p" className="normal-case">
-                    <span className="opacity-60">enjoys building </span>
+                    <span className="opacity-60">I enjoy exploring </span>
                     {IDENTITY.enjoys}
                   </MonoLabel>
                 </Reveal>
