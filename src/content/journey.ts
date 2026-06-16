@@ -51,9 +51,10 @@ export const JOURNEY: readonly JourneyEntry[] = [
     span: "– 2022",
     org: "Kairali School, Ranchi",
     type: "education",
-    title: "Schooling through class 10",
+    title: "Schooling upto X",
     summary:
-      "Foundation years. Mathematics and computers begin as subjects, end as the default way of looking at problems.",
+      "",
+    outcome: "CBSE board score: 94%.",
     weight: "standard",
   },
   {
@@ -62,10 +63,10 @@ export const JOURNEY: readonly JourneyEntry[] = [
     span: "2022 – 2024",
     org: "Delhi Public School, Ranchi",
     type: "education",
-    title: "Senior secondary — science (maths), CBSE",
+    title: "Senior secondary(XII) — Science (maths)",
     summary:
-      "10+2 with the maths track. First sustained programming, first builds that outlived the assignment.",
-    outcome: "board score: 93%.",
+      "",
+    outcome: "CBSE board score: 93%.",
     weight: "standard",
   },
   {
@@ -76,8 +77,8 @@ export const JOURNEY: readonly JourneyEntry[] = [
     type: "education",
     title: "B.Tech, Computer Science and Engineering — AI specialization",
     summary:
-      "Core systems coursework in parallel with shipped work: the projects in the vault and both engineering roles run alongside the degree.",
-    outcome: "in progress · cgpa 8.85 / 10.",
+      "",
+    outcome: "in progress · cgpa 8.7 / 10.",
     weight: "standard",
   },
   {
