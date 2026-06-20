@@ -48,7 +48,7 @@ export const JOURNEY: readonly JourneyEntry[] = [
   {
     id: "REC.2022",
     timestamp: "2022",
-    span: "– 2022",
+    span: "Till 2022",
     org: "Kairali School, Ranchi",
     type: "education",
     title: "Schooling upto X",
