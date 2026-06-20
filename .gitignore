@@ -11,6 +11,8 @@ node_modules
 plan.md
 prompt.txt
 RELEASE.md
+details.txt
+
 
 # Editor / IDE
 .vscode/
@@ -72,3 +74,9 @@ temp/
 # Keep project docs and config tracked:
 # - CLAUDE.md, plan.md, context/, components.json, eslint.config.mjs, package.json, package-lock.json, tsconfig.json, next.config.ts, postcss.config.mjs
 
+.ds-sync/
+ds-bundle/
+.design-sync/.cache/
+.design-sync/learnings/
+.design-sync/node_modules
+.design-sync/

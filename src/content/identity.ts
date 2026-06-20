@@ -140,7 +140,7 @@ export interface ContactChannel {
 
 export const CONTACT = {
   sentence:
-    "Signal Received — Let’s Connect",
+    "Let’s collaborate — reach out below.",
   channels: [
     {
       id: "email",

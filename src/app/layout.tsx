@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { Space_Grotesk, JetBrains_Mono, Oxanium } from "next/font/google";
 
 import { IDENTITY } from "@/content/identity";
-import { DescentProvider } from "@/descent/DescentProvider";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import { MotionBoundary } from "@/motion/MotionBoundary";
 
@@ -16,6 +15,12 @@ const spaceGrotesk = Space_Grotesk({
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const oxanium = Oxanium({
+  variable: "--font-oxanium",
   subsets: ["latin"],
   display: "swap",
 });
@@ -51,12 +56,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} h-full`}
+      className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} ${oxanium.variable} h-full`}
     >
       <body className="min-h-full flex flex-col">
-        <DescentProvider>
-          <MotionBoundary>{children}</MotionBoundary>
-        </DescentProvider>
+        <MotionBoundary>{children}</MotionBoundary>
       </body>
     </html>
   );
