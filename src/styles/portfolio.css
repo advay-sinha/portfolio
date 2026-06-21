@@ -503,7 +503,7 @@
   text-transform: uppercase;
   color: var(--dim);
 }
-.np-foot-resume {
+/* .np-foot-resume {
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -515,7 +515,7 @@
   text-decoration: none;
   transition: color 0.16s;
 }
-.np-foot-resume:hover { color: var(--text); }
+.np-foot-resume:hover { color: var(--text); } */
 
 /* ---------- CONTACT ---------- */
 .np-chan {

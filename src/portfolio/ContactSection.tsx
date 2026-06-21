@@ -10,7 +10,7 @@ import { CONTACT, IDENTITY } from "@/content/identity";
 
 const channel = (id: string) => CONTACT.channels.find((c) => c.id === id);
 
-const SOCIAL_IDS = ["github", "linkedin", "repositories"] as const;
+const SOCIAL_IDS = ["github", "linkedin", "resume"] as const;
 
 export function ContactSection() {
   const email = channel("email");
@@ -152,7 +152,7 @@ export function ContactSection() {
 
         <div className="np-foot-bar">
           <span className="np-foot-status">Systems Nexus · status operational</span>
-          {resume && (
+          {/* {resume && (
             <a
               href={resume.href}
               target="_blank"
@@ -167,7 +167,7 @@ export function ContactSection() {
                 <line x1="3.5" y1="12" x2="8.5" y2="12" stroke="currentColor" />
               </svg>
             </a>
-          )}
+          )} */}
         </div>
       </div>
     </footer>

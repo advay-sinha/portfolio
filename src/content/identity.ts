@@ -136,7 +136,7 @@ export const FACILITY = {
  * actual revision month and is bumped by hand when the PDF is.
  */
 export interface ContactChannel {
-  id: "email" | "github" | "linkedin" | "repositories" | "resume";
+  id: "email" | "github" | "linkedin" | "resume" | "instagram";
   label: string;
   value: string;
   href: string;
@@ -163,12 +163,6 @@ export const CONTACT = {
       label: "linkedin",
       value: "linkedin.com/in/advay-sinha",
       href: "https://linkedin.com/in/advay-sinha",
-    },
-    {
-      id: "repositories",
-      label: "repositories",
-      value: "github.com/advay-sinha?tab=repositories",
-      href: "https://github.com/advay-sinha?tab=repositories",
     },
     {
       id: "resume",
