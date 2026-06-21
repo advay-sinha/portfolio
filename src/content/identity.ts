@@ -75,6 +75,10 @@ export const IDENTITY = {
   /** Facility local time — the engineer's zone, not the visitor's. */
   timeZone: "Asia/Kolkata",
   timeZoneLabel: "IST",
+  /** UTC offset for the zone label, printed in the Contact Node. */
+  utcOffset: "UTC+5:30",
+  /** Operator location — the Contact Node's place readout. */
+  location: "India",
 } as const;
 
 /**
@@ -132,7 +136,7 @@ export const FACILITY = {
  * actual revision month and is bumped by hand when the PDF is.
  */
 export interface ContactChannel {
-  id: "email" | "github" | "linkedin" | "resume";
+  id: "email" | "github" | "linkedin" | "repositories" | "resume";
   label: string;
   value: string;
   href: string;
@@ -159,6 +163,12 @@ export const CONTACT = {
       label: "linkedin",
       value: "linkedin.com/in/advay-sinha",
       href: "https://linkedin.com/in/advay-sinha",
+    },
+    {
+      id: "repositories",
+      label: "repositories",
+      value: "github.com/advay-sinha?tab=repositories",
+      href: "https://github.com/advay-sinha?tab=repositories",
     },
     {
       id: "resume",

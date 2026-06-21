@@ -4,6 +4,11 @@ import { CERTIFICATIONS, PROVIDER_COUNT } from "@/content/certifications";
  * DEPTH.04 — CERTS. The credential archive from
  * content/certifications.ts, newest first. Counts derive from the
  * array. Each card links to its real PDF under /public.
+ *
+ * Ported from Portfolio.dc.html: the records live inside a bounded
+ * archive window — its own scroll context with top/bottom fade masks —
+ * rather than flowing down the page. Each card reads issued · provider ·
+ * domain over title · view ↗.
  */
 
 export function CertsSection() {
@@ -14,105 +19,89 @@ export function CertsSection() {
         <span className="rule" />
         <span>CERTS</span>
         <span className="meta">
-          {PROVIDER_COUNT} ISSUERS · {CERTIFICATIONS.length} CREDENTIALS
+          {CERTIFICATIONS.length} RECORDS · {PROVIDER_COUNT} ISSUERS · EACH LINKS TO ITS PDF
         </span>
       </div>
-      <h2 className="np-h2" style={{ textShadow: "0 0 28px rgba(79,209,255,.2)" }}>
-        Certificates
-      </h2>
 
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))",
-          gap: 14,
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "flex-end",
+          justifyContent: "space-between",
+          gap: 16,
         }}
       >
-        {CERTIFICATIONS.map((c) => (
-          <a
-            key={c.title}
-            href={c.file}
-            target="_blank"
-            rel="noreferrer"
-            data-rise
-            className="np-cert"
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: 8,
-              }}
+        <h2 className="np-h2" style={{ textShadow: "0 0 28px rgba(79,209,255,.2)" }}>
+          Certificates
+        </h2>
+        <span
+          style={{
+            fontFamily: "var(--mono)",
+            fontSize: 11,
+            letterSpacing: ".08em",
+            textTransform: "uppercase",
+            color: "var(--glow)",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
+          Archive · scroll <span style={{ fontSize: 14 }}>↓</span>
+        </span>
+      </div>
+
+      <div data-rise className="np-cert-window">
+        <div className="np-cert-scroll">
+          {CERTIFICATIONS.map((c) => (
+            <a
+              key={c.title}
+              href={c.file}
+              target="_blank"
+              rel="noreferrer"
+              className="np-cert"
             >
-              <span
+              <div
                 style={{
+                  display: "flex",
+                  alignItems: "baseline",
+                  gap: 8,
                   fontFamily: "var(--mono)",
-                  fontSize: 10,
-                  letterSpacing: ".14em",
-                  color: "var(--glow)",
+                  fontSize: 10.5,
+                  letterSpacing: ".04em",
+                  color: "var(--muted)",
                 }}
               >
-                {c.provider}
-              </span>
-              <span
-                style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--dim)" }}
-              >
-                {c.issued}
-              </span>
-            </div>
-            <h3
-              className="np-cert-title"
-              style={{
-                fontFamily: "var(--grotesk)",
-                fontWeight: 400,
-                fontSize: 14.5,
-                lineHeight: 1.35,
-                color: "var(--text)",
-                minHeight: "2.6em",
-              }}
-            >
-              {c.title}
-            </h3>
-            <div
-              style={{
-                marginTop: "auto",
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-              }}
-            >
-              <span
+                <span>{c.issued}</span>
+                <span style={{ opacity: 0.4 }}>·</span>
+                <span>{c.provider}</span>
+                <span style={{ marginLeft: "auto", opacity: 0.6 }}>{c.domain}</span>
+              </div>
+              <div
                 style={{
-                  fontFamily: "var(--mono)",
-                  fontSize: 9,
-                  letterSpacing: ".14em",
-                  textTransform: "uppercase",
-                  color: "var(--signal)",
-                  border: "1px solid rgba(124,92,255,.4)",
-                  padding: "2px 7px",
+                  display: "flex",
+                  alignItems: "baseline",
+                  justifyContent: "space-between",
+                  gap: 12,
                 }}
               >
-                {c.domain}
-              </span>
-              {c.credentialId && (
                 <span
+                  className="np-cert-title"
                   style={{
-                    fontFamily: "var(--mono)",
-                    fontSize: 9,
-                    color: "var(--dim)",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    maxWidth: 120,
+                    fontFamily: "var(--grotesk)",
+                    fontWeight: 400,
+                    fontSize: 14.5,
+                    lineHeight: 1.35,
+                    color: "var(--text)",
                   }}
                 >
-                  id · {c.credentialId}
+                  {c.title}
                 </span>
-              )}
-            </div>
-          </a>
-        ))}
+                <span className="np-cert-view">view ↗</span>
+              </div>
+            </a>
+          ))}
+        </div>
       </div>
     </section>
   );

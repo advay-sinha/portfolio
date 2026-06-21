@@ -344,21 +344,178 @@
 .np-card:hover .np-arrow { color: var(--glow); transform: translateX(4px); }
 
 /* ---------- CERTS ---------- */
+/* Bounded archive window: its own scroll context, visually distinct
+   from the page — a sealed credential vault you scroll through. The
+   fade masks (top/bottom) sit above the scroll content via z-index. */
+.np-cert-window {
+  position: relative;
+  border: 1px solid rgba(79, 209, 255, 0.18);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(17, 24, 44, 0.82), rgba(9, 13, 28, 0.86));
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.45), 0 0 30px rgba(79, 209, 255, 0.05);
+  overflow: hidden;
+}
+.np-cert-window::before,
+.np-cert-window::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+.np-cert-window::before {
+  top: 0;
+  height: 38px;
+  background: linear-gradient(180deg, rgba(13, 19, 35, 0.95), transparent);
+}
+.np-cert-window::after {
+  bottom: 0;
+  height: 46px;
+  background: linear-gradient(0deg, rgba(9, 13, 28, 0.96), transparent);
+}
+.np-cert-scroll {
+  max-height: 430px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 18px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(79, 209, 255, 0.3) transparent;
+}
+.np-cert-scroll::-webkit-scrollbar { width: 6px; }
+.np-cert-scroll::-webkit-scrollbar-track { background: transparent; }
+.np-cert-scroll::-webkit-scrollbar-thumb {
+  background: rgba(79, 209, 255, 0.25);
+  border-radius: 9999px;
+}
+.np-cert-scroll::-webkit-scrollbar-thumb:hover { background: rgba(79, 209, 255, 0.5); }
+
 .np-cert {
   position: relative;
-  background: var(--panel);
-  border: 1px solid var(--hair);
-  padding: 18px 18px 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  transition: border-color 0.22s, background 0.22s, transform 0.22s;
+  gap: 9px;
+  text-decoration: none;
+  color: inherit;
+  background: rgba(13, 19, 35, 0.6);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  padding: 15px 16px;
+  transition: border-color 0.22s, background 0.22s;
 }
 .np-cert:hover {
-  border-color: rgba(79, 209, 255, 0.5);
-  background: var(--raised);
-  transform: translateY(-3px);
+  border-color: rgba(79, 209, 255, 0.4);
+  background: rgba(17, 24, 44, 0.95);
 }
+.np-cert-view {
+  flex-shrink: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--glow);
+}
+
+/* ---------- CONTACT FOOTER ---------- */
+.np-foot {
+  position: relative;
+  margin-top: clamp(50px, 8vh, 90px);
+  border-top: 1px solid var(--hair);
+  overflow: hidden;
+}
+/* Rendered as a direct child of .np (outside .np-main) so the band goes
+   edge to edge. The inner re-establishes a centered column — wider than
+   the page's 1180 so the node uses more of the screen — and clears the
+   fixed nav rail on the right at desktop widths. */
+.np-foot-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: clamp(56px, 9vh, 110px) clamp(20px, 5vw, 72px) 0;
+}
+@media (min-width: 1024px) {
+  .np-foot-inner { padding-right: 104px; }
+}
+.np-foot-name {
+  margin: 0;
+  font-family: var(--grotesk);
+  font-weight: 600;
+  font-size: clamp(2.4rem, 8vw, 5.2rem);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-transform: uppercase;
+  text-shadow: 0 0 36px rgba(79, 209, 255, 0.18);
+}
+.np-foot-grid {
+  margin-top: clamp(48px, 7vh, 84px);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: clamp(36px, 5vw, 72px);
+  align-items: start;
+}
+.np-foot-key {
+  margin: 0 0 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+.np-foot-mail {
+  font-family: var(--grotesk);
+  font-size: 1.04rem;
+  color: var(--text);
+  text-decoration: none;
+  transition: color 0.16s;
+}
+.np-foot-mail:hover { color: var(--signal); }
+.np-soc {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 2px;
+  border-bottom: 1px solid var(--hair-strong);
+  font-family: var(--grotesk);
+  font-size: 1.5rem;
+  color: var(--text);
+  text-decoration: none;
+  text-transform: capitalize;
+  transition: color 0.16s, padding 0.18s;
+}
+.np-soc span { font-size: 1rem; }
+.np-soc:hover { color: var(--signal); padding-left: 8px; }
+.np-foot-bar {
+  margin-top: clamp(56px, 10vh, 120px);
+  padding: 22px 0 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 1px solid var(--hair);
+}
+.np-foot-status {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.np-foot-resume {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.16s;
+}
+.np-foot-resume:hover { color: var(--text); }
 
 /* ---------- CONTACT ---------- */
 .np-chan {

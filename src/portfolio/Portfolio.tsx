@@ -68,8 +68,11 @@ export function Portfolio() {
         <Corridor to="transit → depth.05 · terminal" />
         <Terminal />
         <Corridor to="transit → depth.06 · contact" />
-        <ContactSection />
       </main>
+
+      {/* Contact node lives outside .np-main so the footer spans the full
+          viewport width; every other section keeps the centered column. */}
+      <ContactSection />
 
       <BootOverlay onDone={() => setBooted(true)} />
     </div>
