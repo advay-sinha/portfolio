@@ -148,13 +148,13 @@ export function DossierSchematic({ id }: { id: SchematicId }) {
         </>
       )}
 
-      {/* traveling signal */}
+      {/* traveling signal — drop-shadow filter dropped; it re-runs every
+          frame on a moving node. A larger bright dot keeps the read. */}
       <circle
-        r="3"
+        r="3.4"
         cy={cy}
         fill="var(--glow)"
         style={{
-          filter: "drop-shadow(0 0 4px var(--glow))",
           animation: `np-flowX ${spec.dur}s linear infinite`,
         }}
       />

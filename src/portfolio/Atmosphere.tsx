@@ -150,7 +150,7 @@ export function Atmosphere() {
             position: "absolute",
             inset: 0,
             zIndex: 2,
-            animation: "np-gridGlitch 7s steps(60) infinite",
+            animation: "np-gridGlitch 11s steps(60) infinite",
           }}
         >
           {/* ceiling grid */}
@@ -172,12 +172,24 @@ export function Atmosphere() {
                 inset: "0 0 -2px 0",
                 transform: "rotateX(-70deg)",
                 transformOrigin: "50% 100%",
-                backgroundImage:
-                  "linear-gradient(rgba(79,209,255,.30) 1px,transparent 1px),linear-gradient(90deg,rgba(255,73,192,.18) 1px,transparent 1px)",
-                backgroundSize: "60px 60px",
-                animation: "np-gridUp 2.4s linear infinite",
+                overflow: "hidden",
               }}
-            />
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  top: -60,
+                  bottom: -60,
+                  left: 0,
+                  right: 0,
+                  backgroundImage:
+                    "linear-gradient(rgba(79,209,255,.30) 1px,transparent 1px),linear-gradient(90deg,rgba(255,73,192,.18) 1px,transparent 1px)",
+                  backgroundSize: "60px 60px",
+                  animation: "np-gridUp 2.4s linear infinite",
+                  willChange: "transform",
+                }}
+              />
+            </div>
             <div
               style={{
                 position: "absolute",
@@ -206,12 +218,24 @@ export function Atmosphere() {
                 inset: "-2px 0 0 0",
                 transform: "rotateX(70deg)",
                 transformOrigin: "50% 0%",
-                backgroundImage:
-                  "linear-gradient(rgba(79,209,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,73,192,.32) 1px,transparent 1px)",
-                backgroundSize: "60px 60px",
-                animation: "np-gridDown 1.8s linear infinite",
+                overflow: "hidden",
               }}
-            />
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  top: -60,
+                  bottom: -60,
+                  left: 0,
+                  right: 0,
+                  backgroundImage:
+                    "linear-gradient(rgba(79,209,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,73,192,.32) 1px,transparent 1px)",
+                  backgroundSize: "60px 60px",
+                  animation: "np-gridDown 1.8s linear infinite",
+                  willChange: "transform",
+                }}
+              />
+            </div>
             <div
               style={{
                 position: "absolute",
@@ -235,7 +259,6 @@ export function Atmosphere() {
             zIndex: 4,
             background:
               "linear-gradient(90deg,transparent,rgba(79,209,255,.5),rgba(255,73,192,.4),transparent)",
-            mixBlendMode: "screen",
             opacity: 0,
             animation: "np-sliceGlitch 9s steps(40) infinite",
           }}
@@ -282,9 +305,8 @@ export function Atmosphere() {
           zIndex: 90,
           pointerEvents: "none",
           background:
-            "repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 2px,rgba(0,0,0,.14) 3px,rgba(0,0,0,0) 4px)",
-          mixBlendMode: "multiply",
-          opacity: 0.5,
+            "repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 2px,rgba(0,0,0,.1) 3px,rgba(0,0,0,0) 4px)",
+          opacity: 0.6,
         }}
       />
       <div

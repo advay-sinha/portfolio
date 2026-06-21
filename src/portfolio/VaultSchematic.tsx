@@ -148,8 +148,10 @@ export function VaultSchematic({ spec }: { spec: SchematicSpec }) {
         </text>
       </g>
 
-      {/* traveling signal */}
-      <circle r="2.6" fill="var(--glow)" style={{ filter: "drop-shadow(0 0 5px var(--glow))" }}>
+      {/* traveling signal — no drop-shadow filter: it would re-run the
+          filter every frame on a moving node, once per card. A slightly
+          larger bright dot reads as a glow without the per-frame cost. */}
+      <circle r="3" fill="var(--glow)">
         <animateMotion
           dur={`${spec.dur}s`}
           repeatCount="indefinite"
