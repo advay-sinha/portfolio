@@ -46,6 +46,31 @@ const VIEW_H = 180;
 /* Shared 5-stage pipeline grid: boxes 54×32 at y=74, x = 10/80/150/220/290
    (centers 37/107/177/247/317). Each system's real topology from its repo. */
 const SCHEMATICS: Record<SchematicId, SchematicSpec> = {
+  nims: {
+    description:
+      "A read-only ingestion layer feeds three analysis engines — cyber intrusion, telemetry health, device configuration — whose persisted outputs a deterministic correlation stage fuses into incidents.",
+    boxes: [
+      { x: 10, y: 74, w: 54, h: 32, label: "ingest" },
+      { x: 80, y: 74, w: 54, h: 32, label: "cyber" },
+      { x: 150, y: 74, w: 54, h: 32, label: "health" },
+      { x: 220, y: 74, w: 54, h: 32, label: "config" },
+      { x: 290, y: 74, w: 54, h: 32, label: "fuse" },
+      { x: 10, y: 130, w: 54, h: 26, label: "read-only" },
+    ],
+    flows: [
+      "M 4 90 H 10",
+      "M 64 90 H 80",
+      "M 134 90 H 150",
+      "M 204 90 H 220",
+      "M 274 90 H 290",
+      "M 344 90 H 356",
+    ],
+    taps: ["M 37 106 V 130"],
+    ports: [
+      [4, 90, "in"],
+      [356, 90, "rec"],
+    ],
+  },
   marp: {
     description:
       "Five-stage agent pipeline: planner, retriever over a pgvector store, writer, critic looping back to the writer, verifier before egress.",

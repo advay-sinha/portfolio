@@ -30,6 +30,16 @@ interface Spec {
 }
 
 const SPECS: Record<SchematicId, Spec> = {
+  nims: {
+    boxes: [
+      { x: 2, w: 148, label: "SNMP · SYSLOG · SSH" },
+      { x: 188, w: 150, label: "ENGINES A · B · C" },
+      { x: 376, w: 132, label: "CORRELATION" },
+      { x: 546, w: 172, label: "CONSOLE · API", accent: true },
+    ],
+    sub: "artifact store · dry-run only",
+    dur: 5.6,
+  },
   marp: {
     boxes: [
       { x: 2, w: 112, label: "PLANNER" },

@@ -98,9 +98,9 @@ export const JOURNEY: readonly JourneyEntry[] = [
     span: "2024.11 – 2025.12",
     org: "Zarva, Greater Noida",
     type: "experience",
-    title: "Backend developer — speech recognition & safety infrastructure",
+    title: "Backend software developer — speech recognition & safety infrastructure",
     summary:
-      "Engineered a real-time speech recognition system and 5+ REST APIs for live call connectivity — instant distress detection across 100+ active cab rides. Built a routing algorithm over crime datasets with graph-theoretic path optimisation, cutting risk-exposure scores 40% in high-incident zones.",
+      "Engineered a real-time speech recognition pipeline and 5+ REST APIs over WebSockets for live call connectivity — instant distress detection across 100+ concurrent cab rides. Built a graph-theoretic shortest-path routing algorithm over integrated crime datasets, cutting risk-exposure scores 40% in high-incident zones.",
     outcome: "shipped to production; first engineering role.",
     weight: "high",
   },
@@ -112,7 +112,7 @@ export const JOURNEY: readonly JourneyEntry[] = [
     type: "competition",
     title: "1st place among 40+ teams",
     summary:
-      "Demonstrated Zarva's full safety stack — speech recognition, distress detection, safe routing — to a panel of industry judges.",
+      "Won on Zarva's real-time cab-safety system — WebSocket call streaming, live distress detection, risk-aware routing — demonstrated to a panel of industry judges.",
     weight: "high",
   },
   {
@@ -121,21 +121,33 @@ export const JOURNEY: readonly JourneyEntry[] = [
     span: "2025.09",
     org: "Smart India Hackathon — Bennett University",
     type: "competition",
-    title: "SIH qualifier — top 100",
+    title: "SIH 2025 — pre-national selection stage",
     summary:
-      "Qualified the internal Smart India Hackathon round among the top 100 campus teams; certificate of achievement on record.",
+      "Advanced to the pre-national selection stage among 450+ competing teams; certificate of achievement on record.",
     weight: "standard",
   },
   {
     id: "REC.2026.01",
     timestamp: "2026-01",
-    span: "2026.01 – present",
+    span: "2026.01 – 2026.06",
     org: "Alignerr (freelance, remote)",
     type: "experience",
     title: "AI data & evaluation contractor — frontier model alignment",
     summary:
-      "Structured data labelling and adversarial prompt evaluation for frontier AI systems (clients including Anthropic) — 10+ evaluation cycles across code generation, reasoning, and instruction-following, feeding RLHF pipeline updates.",
-    outcome: "ongoing.",
+      "Evaluated and labelled large-scale model-output datasets for frontier AI systems (clients including Anthropic) against structured rubrics — 10+ evaluation cycles, plus adversarial test cases probing logical and algorithmic edge cases across code generation, reasoning, and multi-step instruction-following.",
+    outcome: "contract closed.",
+    weight: "high",
+  },
+  {
+    id: "REC.2026.06",
+    timestamp: "2026-06",
+    span: "2026.06 – 2026.07",
+    org: "Airports Authority of India — JP Narayan Int’l Airport, Patna",
+    type: "experience",
+    title: "Software engineering intern — networks & cybersecurity",
+    summary:
+      "Architected and deployed NIMS: ML intrusion detection, telemetry health prediction, and configuration auditing unified across the airport’s multi-vendor campus network (Huawei, Cisco, Hirschmann, Sophos). Field-validated a read-only ingestion layer — SNMPv3 polling, traps, syslog, SSH, SIEM API — against a production Huawei S5720, surfacing 87 configuration findings with rollback-verified dry-run remediation.",
+    outcome: "read-only by construction: no code path can modify a device.",
     weight: "high",
   },
 ];

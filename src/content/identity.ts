@@ -30,7 +30,8 @@ export const IDENTITY = {
     "I’m a Computer Science student and backend-focused developer"+
     " passionate about building scalable systems, AI-driven"+
     " applications, and high-performance web platforms. My work"+
-    " spans backend engineering, speech recognition integrations,"+
+    " spans backend engineering, network monitoring platforms,"+
+    " speech recognition integrations,"+
     " algorithmic trading simulations, and full-stack development using"+
     " TypeScript, Node.js, React, MongoDB, and cloud technologies.",
 
@@ -48,9 +49,9 @@ export const IDENTITY = {
    */
   capabilities: [
     "backend — fastapi · spring boot · node.js",
-    "ai/ml — pytorch · rag pipelines · rlhf evaluation",
+    "ai/ml — pytorch · xgboost · shap · rag pipelines",
     "data — postgresql · mongodb · chromadb",
-    "realtime — websockets · speech recognition",
+    "telemetry — websockets · snmp · syslog · speech",
     "languages — python · java · c++ · typescript",
     "infra — docker · ci/cd · jwt auth",
   ],
@@ -62,6 +63,7 @@ export const IDENTITY = {
    * boot can't drift from the vault.
    */
   systems: [
+    "Network Intrusion Monitoring System",
     "Multi-Agentic Research Platform",
     "Algo Trade Simulator",
     "FloatChat",
@@ -167,7 +169,7 @@ export const CONTACT = {
     {
       id: "resume",
       label: "resume",
-      value: "pdf · updated 2026.06",
+      value: "pdf · updated 2026.08",
       href: "/AdvayResume.pdf",
     },
   ] satisfies readonly ContactChannel[],

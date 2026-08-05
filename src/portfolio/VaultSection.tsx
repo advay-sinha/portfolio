@@ -11,6 +11,13 @@ import { VaultSchematic, type SchematicSpec } from "./VaultSchematic";
  */
 
 const SCHEMATICS: Record<string, SchematicSpec> = {
+  nims: {
+    stages: ["INGEST", "CYBER", "HEALTH", "CONFIG", "FUSE"],
+    accentIndex: 4,
+    branch: { under: 0, label: "READ-ONLY" },
+    out: "REC",
+    dur: 5,
+  },
   marp: {
     stages: ["PLAN", "RETRIEVE", "WRITE", "CRITIC", "VERIFY"],
     accentIndex: 4,

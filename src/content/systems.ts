@@ -6,14 +6,17 @@
  * HONESTY LAW (review this file, not the components):
  * every record below maps 1:1 to a real repository under
  * github.com/advay-sinha; stacks, architectures, and fallback notes are
- * taken from each repo's README. Statuses are operational truth.
+ * taken from each repo's README — the NIMS record additionally derives
+ * from context/NIMS_Internship_Report.pdf (metrics, findings counts and
+ * failure traces are quoted from its results sections, never rounded up).
+ * Statuses are operational truth.
  * The vault sub-readout counts derive from this array — fixing this
  * file fixes the page.
  */
 
 export type SystemStatus = "operational" | "experimental" | "archived";
 
-export type SchematicId = "marp" | "ats" | "floatchat" | "mockai";
+export type SchematicId = "nims" | "marp" | "ats" | "floatchat" | "mockai";
 
 export type ArtifactKind =
   | "diagram"
@@ -86,8 +89,64 @@ export interface SystemRecord {
 
 export const SYSTEMS: readonly SystemRecord[] = [
   {
+    slug: "nims",
+    designation: "PROJ.NIMS / 01",
+    title: "Network Intrusion Monitoring System",
+    role: "unified intrusion, health, and configuration monitoring for a multi-vendor campus network",
+    constraint:
+      "Watches a critical production network it is structurally incapable of modifying — no write path to any device exists in the codebase.",
+    stack: [
+      "python 3.11",
+      "xgboost · lightgbm · pytorch",
+      "fastapi + node/express",
+      "react + vite",
+      "snmpv3 · syslog · read-only ssh",
+      "shap · optuna",
+    ],
+    status: "operational",
+    summary:
+      "Three analysis engines — ML intrusion detection, telemetry health prediction, and switch configuration intelligence — fused by a deterministic correlation engine into severity- and confidence-scored incidents, over a live ingestion layer that is read-only by construction.",
+    schematicId: "nims",
+    repo: "github.com/advay-sinha/NIMS",
+    dossier: {
+      overview:
+        "NIMS unifies three monitoring domains that network operations teams normally run as separate, disconnected tools. Engine A detects and classifies malicious traffic: seven models (XGBoost, LightGBM, Isolation Forest, MLP, 1D-CNN, LSTM, Transformer) benchmarked over 44 experiments on NSL-KDD, UNSW-NB15 and CIC-IDS2017 through a leakage-free seeded pipeline, with XGBoost promoted on every dataset at test F1 0.9925 / 0.9244 / 0.9988. Engine B predicts interface degradation from SNMP/MIB telemetry using strictly chronological splits and causal rolling features (recall 1.0, ROC-AUC 0.97 on injected degradation). Engine C parses saved switch output (Cisco IOS, Huawei VRP) into a typed inventory, derives LLDP/CDP/MAC/STP topology, evaluates a YAML rule engine, and emits dry-run remediation where every command carries a rollback, a verification step and a risk level. A deterministic correlation engine fuses all three plus industrial syslog into single explainable incidents, presented through a React console, a FastAPI inference service and a Streamlit dashboard.",
+      architecture:
+        "Five isolated layers — data, feature engineering, training, evaluation, deployment — communicate only through persisted, versioned artifacts on disk (Parquet, JSON, JSONL, joblib). Downstream consumers never re-run an upstream pipeline, never recompute a metric and never mutate a source file, so failure isolation and the audit trail come from the contract rather than from discipline. There is no database server: all state is files under outputs/, with experiment directories never overwritten and the registry and dashboards rebuilt idempotently from manifests. The training pipeline enforces validate → preprocess → engineer → train → evaluate → diagnose → register → promote → serve, with every fit on the training split only and a pre-fit feature audit re-verifying column names, order and dtypes immediately before each model fit. Serving replays the exact saved encoder, scaler, feature list and label decoder, so there is no training/serving skew. The live path is an adapter runtime: five source adapters (SNMPv3 polling, SNMP traps, Sophos syslog over UDP, Sophos Central SIEM API, read-only SSH retrieval) behind one interface, each defaulting to offline or mock mode, with preflight readiness checks, credential redaction and JSONL event persistence with checkpoints. Over thirty YAML files govern paths, thresholds, rules and site policy — no path or hyperparameter is hardcoded in Python, which is what lets the same codebase move between sites unchanged.",
+      constraints: [
+        "the monitoring system must be incapable of breaking the network — read-only towards every device, all changes left as human-approved plans",
+        "explainability is operational, not cosmetic — an alert that cannot say why it fired gets ignored, so SHAP attribution, per-class error analysis and banded confidence are requirements",
+        "no data leakage across two pipelines — every fit train-only, telemetry splits strictly chronological with causal features",
+        "real command output is hostile to naive parsing — columns with internal spaces, missing columns, VLAN ranges, pager markers, two vendor dialects",
+        "restricted deployment envelope — open-source only, offline installable, Windows compatible, single workstation, no cloud dependency",
+      ],
+      tradeoffs: [
+        "file-based artifact store over a database server: diffable, trivially backed up and dependency-free on one workstation, at the cost of multi-site scale — path helpers keep a Postgres/TimescaleDB or object-storage backing possible without touching engine logic",
+        "XGBoost promoted over the deep family: it reaches the best CIC-IDS2017 F1 in 54 s where the LSTM needs 6,146 s for 0.9 points less, so accuracy was weighed against training cost explicitly",
+        "deterministic YAML correlation rules over a learned fusion model: incidents are reproducible and content-addressed — identical inputs always produce identical incidents — instead of statistically clever and unauditable",
+        "dry-run remediation over automated repair: the planner emits documents and the executor records executed=false on every audit entry; analysis proposes, humans decide",
+        "offline/mock as the default adapter mode over live-first: live mode is triple-gated by configuration, mode and environment-variable credentials, so a misconfiguration cannot reach production equipment",
+      ],
+      failures: [
+        "LightGBM diverged on multiclass — F1 0.775 (NSL-KDD) and 0.742 (CIC-IDS2017) against XGBoost's 0.99; root-causing from the saved boosters showed unregularised leaf outputs under the 40-class softmax, and reg_lambda 1.0 recovered 0.9923 and 0.9987. The error-analysis artifacts are what surfaced it",
+        "an OpenCL single-precision GPU histogram limitation was isolated rather than papered over, with gpu_use_dp documented as the validated workaround",
+        "pysnmp 7's asyncio API forced a rework of the polling path, its AES privacy needed an explicit cryptography pin, and legacy VRP/IOS SSH stacks required holding paramiko below 4 for SHA-1 KEX — every live dependency stays optional so offline use never inherits them",
+        "the preflight gate refuses to touch the network when anything is misconfigured; readiness reports NOT_READY, DISABLED, BLOCKED_BY_SAFETY, MISSING_DEPENDENCY, MISSING_CONFIGURATION or MISSING_CREDENTIALS without connecting to the device",
+        "boot clocks reading Jan 1 1970 are flagged as unreliable in correlated incidents instead of being silently trusted as timestamps",
+      ],
+      reasoning:
+        "Fusing heterogeneous evidence risks confident nonsense, so confidence is banded by evidence type, entity match quality is reported (exact, normalized, uncertain, none), aggregate signals are down-weighted and incident wording stays cautious ('suspected', 'consistent with') unless device evidence is conclusive. Safety is architectural rather than procedural: no SNMP SET, no SSH configuration mode, no write command, no remediation execution path, with a static auditor (validate_engine_c_safety) failing the suite on forbidden imports or unsafe configuration defaults. Roughly 200 Python modules are validated by 74 fully offline test modules — no test requires live hardware, network access, a GPU or Streamlit.",
+      future: [
+        "gated remediation execution with human approval, maintenance windows and automatic rollback on failed verification",
+        "additional vendor packs (NX-OS, Aruba, Juniper) plus NETCONF/RESTCONF retrieval alongside SSH and SNMP",
+        "live packet capture so Engine A runs on traffic mirrors in near real time",
+        "an LSTM autoencoder scoring reconstruction error over Engine B's existing causal features",
+      ],
+    },
+  },
+  {
     slug: "multi-agentic-research-platform",
-    designation: "PROJ.MARP / 01",
+    designation: "PROJ.MARP / 02",
     title: "Multi-Agentic Research Platform",
     role: "evidence-grounded research over a five-stage agent pipeline",
     constraint:
@@ -134,7 +193,7 @@ export const SYSTEMS: readonly SystemRecord[] = [
   },
   {
     slug: "algo-trade-simulator",
-    designation: "PROJ.ATS / 02",
+    designation: "PROJ.ATS / 03",
     title: "Algo Trade Simulator",
     role: "trains and runs trading strategies against live markets, on simulated capital",
     constraint:
@@ -180,7 +239,7 @@ export const SYSTEMS: readonly SystemRecord[] = [
   },
   {
     slug: "floatchat",
-    designation: "PROJ.FLOAT / 03",
+    designation: "PROJ.FLOAT / 04",
     title: "FloatChat",
     role: "conversational explorer for the ARGO ocean-float archive",
     constraint:
@@ -225,7 +284,7 @@ export const SYSTEMS: readonly SystemRecord[] = [
   },
   {
     slug: "mock-ai",
-    designation: "PROJ.MOCK / 04",
+    designation: "PROJ.MOCK / 05",
     title: "Mock AI",
     role: "AI mock-interview and assessment platform with voice interaction",
     constraint:
