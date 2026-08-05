@@ -142,7 +142,7 @@ export const JOURNEY: readonly JourneyEntry[] = [
     id: "REC.2026.06",
     timestamp: "2026-06",
     span: "2026.06 – 2026.07",
-    org: "Airports Authority of India — JP Narayan Int’l Airport, Patna",
+    org: "Airports Authority of India — Jay Prakash Narayan International Airport, Patna",
     type: "experience",
     title: "Software engineering intern — networks & cybersecurity",
     summary:
